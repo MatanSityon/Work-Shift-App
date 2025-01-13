@@ -5,6 +5,9 @@
     android:id="@+id/navgraph"
     app:startDestination="@id/loginScreen">
 
+
+
+
     <fragment
         android:id="@+id/loginScreen"
         android:name="com.example.workshiftapp.fragments.LoginScreen"
@@ -32,4 +35,6 @@
             android:id="@+id/action_generalAppScreen_to_loginScreen"
             app:destination="@id/loginScreen" />
     </fragment>
+
+
 </navigation>
