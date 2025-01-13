@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     public GoogleSignInClient googleSignInClient;
     ShapeableImageView imageView;
     TextView name, mail;
+    //test
 
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
