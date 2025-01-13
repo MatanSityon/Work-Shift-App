@@ -42,6 +42,8 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import android.content.Intent;
+
 
 import androidx.navigation.Navigation;
 
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                                 mAuth = FirebaseAuth.getInstance();
                                 //name.setText(mAuth.getCurrentUser().getDisplayName());
                                 Toast.makeText(MainActivity.this, "Signed in successfully!", Toast.LENGTH_SHORT).show();
-                                Navigation.findNavController(btn).navigate(R.id.action_loginScreen_to_organizerScreen);
+                                Navigation.findNavController(btn).navigate(R.id.action_loginScreen_to_generalAppScreen);
 
                             } else {
                                 Toast.makeText(MainActivity.this, "Failed to sign in: " + task.getException(), Toast.LENGTH_SHORT).show();
@@ -131,7 +133,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(MainActivity.this, "login ok", Toast.LENGTH_LONG).show();
-                            Navigation.findNavController(v).navigate(R.id.action_loginScreen_to_organizerScreen);
+                            Navigation.findNavController(v).navigate(R.id.action_loginScreen_to_generalAppScreen);
+                            //Intent intent = new Intent(MainActivity.this,GenaralAppActivity.class);
+                            //startActivity(intent);
                         } else {
                             Toast.makeText(MainActivity.this, "login fail", Toast.LENGTH_LONG).show();
                         }

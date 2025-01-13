@@ -5,5 +5,7 @@
     <string name="signup_login_hint">Already have an account? Sign In</string>
     <string name="login_signup_hint">Don\'t have an account? Sign Up</string>
     <string name="client_id">1021981122582-5q7gl3utuj51tqvpc0vv9l3qchnt1m2p.apps.googleusercontent.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

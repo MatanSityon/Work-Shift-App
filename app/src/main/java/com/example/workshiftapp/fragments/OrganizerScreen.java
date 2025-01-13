@@ -1,8 +1,12 @@
 package com.example.workshiftapp.fragments;
 
+import static androidx.navigation.fragment.FragmentKt.findNavController;
+
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
@@ -71,7 +75,7 @@ public class OrganizerScreen extends Fragment {
         View view =inflater.inflate(R.layout.fragment_organizer_screen, container, false);
         Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
 
-        googleSignOutButton.setOnClickListener(new View.OnClickListener(){
+            googleSignOutButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 MainActivity mainActivity = (MainActivity) getActivity();
@@ -83,7 +87,11 @@ public class OrganizerScreen extends Fragment {
                             Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
 
                             // Navigate back to the login screen
-                            Navigation.findNavController(v).navigate(R.id.action_organizerScreen_to_loginScreen);
+                            // Get the NavController for the main navigation graph (nav_graph1)
+                            NavController mainNavController = Navigation.findNavController(requireActivity(), R.id.navgraph);
+                            // Navigate to the login screen
+                            mainNavController.navigate(R.id.loginScreen);
+                            //Navigation.findNavController(v).navigate(R.id.);
                         }
                     });
                 } else {
@@ -91,6 +99,7 @@ public class OrganizerScreen extends Fragment {
                 }
             }
         });
+
 
         return view;
 

@@ -13,8 +13,8 @@
             android:id="@+id/action_loginScreen_to_registrationScreen"
             app:destination="@id/registrationScreen" />
         <action
-            android:id="@+id/action_loginScreen_to_organizerScreen"
-            app:destination="@id/organizerScreen" />
+            android:id="@+id/action_loginScreen_to_generalAppScreen"
+            app:destination="@id/generalAppScreen" />
     </fragment>
     <fragment
         android:id="@+id/registrationScreen"
@@ -25,12 +25,11 @@
             app:destination="@id/loginScreen" />
     </fragment>
     <fragment
-        android:id="@+id/organizerScreen"
-        android:name="com.example.workshiftapp.fragments.OrganizerScreen"
-        android:label="fragment_organizer_screen"
-        tools:layout="@layout/fragment_organizer_screen" >
+        android:id="@+id/generalAppScreen"
+        android:name="com.example.workshiftapp.fragments.GeneralAppScreen"
+        android:label="GeneralAppScreen" >
         <action
-            android:id="@+id/action_organizerScreen_to_loginScreen"
+            android:id="@+id/action_generalAppScreen_to_loginScreen"
             app:destination="@id/loginScreen" />
     </fragment>
 </navigation>
