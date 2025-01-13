@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     ShapeableImageView imageView;
     TextView name, mail;
 
+    //test 2a
+
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
