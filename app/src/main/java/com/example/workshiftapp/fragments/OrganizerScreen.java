@@ -3,6 +3,7 @@ package com.example.workshiftapp.fragments;
 import static android.text.format.DateUtils.getDayOfWeekString;
 import static androidx.navigation.fragment.FragmentKt.findNavController;
 
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -31,12 +32,14 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.navigation.Navigation;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Locale;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -144,74 +147,40 @@ public class OrganizerScreen extends Fragment {
 
         });
 
-
-
-
-        Spinner spinner_morning_hours = view.findViewById(R.id.start_morning_spinner);
-        Spinner spinner_morning_minutes = view.findViewById(R.id.end_morning_spinner);
-        Spinner spinner_night_hours = view.findViewById(R.id.start_night_spinner);
-        Spinner spinner_night_minutes = view.findViewById(R.id.end_night_spinner);
-
-        spinner_morning_hours.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        Button btnTimePicker = view.findViewById(R.id.time_picker_morning);
+        btnTimePicker.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        spinner_morning_minutes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        spinner_night_hours.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onClick(View v) {
+                TimePickerDialog timePickerDialog =new TimePickerDialog(
+                        getActivity(), android.R.style.Theme_Holo_Dialog_MinWidth, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                    time_hour = hourOfDay;
+                    time_min= minute;
+                    String time = time_hour + ":" + time_min;
+                    SimpleDateFormat f24hour = new SimpleDateFormat(
+                            "HH:mm"
+                    );
+                        try {
+                            Date date = f24hour.parse(time);
+                            SimpleDateFormat f12hour = new SimpleDateFormat(
+                                    "hh:mm aa"
+                            );
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+                )
             }
         });
-        spinner_night_minutes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-        ArrayList<String> morning_hours = new ArrayList<>(),morning_minutes = new ArrayList<>(), night_hours = new ArrayList<>(),night_minutes = new ArrayList<>();
-        Collections.addAll(morning_hours, "08", "09", "10", "11", "12", "13", "14", "15", "16");
-        Collections.addAll(morning_minutes, "00","10", "20", "30", "40", "50", "60");
-        Collections.addAll(night_hours, "16","17", "18", "19", "20","21", "22", "23", "24");
-        Collections.addAll(night_minutes, "00","10", "20", "30", "40", "50", "60");
-        ArrayAdapter<String> adapter_morning_hours = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, morning_hours);
-        adapter_morning_hours.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-        spinner_morning_hours.setAdapter(adapter_morning_hours);
-        ArrayAdapter<String> adapter_morning_minutes = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, morning_minutes);
-        adapter_morning_minutes.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-        spinner_morning_minutes.setAdapter(adapter_morning_minutes);
-        ArrayAdapter<String> adapter_night_hours = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, night_hours);
-        adapter_night_hours.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-        spinner_night_hours.setAdapter(adapter_night_hours);
-        ArrayAdapter<String> adapter_night_minutes = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, night_minutes);
-        adapter_night_minutes.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
-        spinner_night_minutes.setAdapter(adapter_night_minutes);
 
 
         return view;
     }
 
 
+    int time_hour,time_min;
 
     public String displayDayOfWeek(int year, int month, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
