@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     TextView name, mail;
 
     //test 2a
+    //test 3
 
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
