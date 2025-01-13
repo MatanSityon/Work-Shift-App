@@ -1,21 +1,21 @@
 package com.example.workshiftapp.fragments;
 
-import static android.text.format.DateUtils.getDayOfWeekString;
-import static androidx.navigation.fragment.FragmentKt.findNavController;
+//import static android.text.format.DateUtils.getDayOfWeekString;
+//import static androidx.navigation.fragment.FragmentKt.findNavController;
 
 import android.app.TimePickerDialog;
-import android.content.Intent;
+//import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
+//import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+//import android.widget.AdapterView;
+//import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
@@ -124,6 +124,7 @@ public class OrganizerScreen extends Fragment {
         CalendarView calendar = view.findViewById(R.id.calendarView);
         TextView date = view.findViewById(R.id.selectedDay);
         CalendarView calendarView = view.findViewById(R.id.calendarView);
+        
 
         // Get current date
         Calendar calendarInstance = Calendar.getInstance();
@@ -147,40 +148,29 @@ public class OrganizerScreen extends Fragment {
 
         });
 
-        Button btnTimePicker = view.findViewById(R.id.time_picker_morning);
-        btnTimePicker.setOnClickListener(new View.OnClickListener() {
+        Button morningTimePicker = view.findViewById(R.id.time_picker_morning);
+        Button eveningTimePicker = view.findViewById(R.id.time_picker_evening);
+        morningTimePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerDialog timePickerDialog =new TimePickerDialog(
-                        getActivity(), android.R.style.Theme_Holo_Dialog_MinWidth, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    time_hour = hourOfDay;
-                    time_min= minute;
-                    String time = time_hour + ":" + time_min;
-                    SimpleDateFormat f24hour = new SimpleDateFormat(
-                            "HH:mm"
-                    );
-                        try {
-                            Date date = f24hour.parse(time);
-                            SimpleDateFormat f12hour = new SimpleDateFormat(
-                                    "hh:mm aa"
-                            );
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-                )
+                Navigation.findNavController(v).navigate(R.id.action_generalAppScreen_to_timeSelectFragment);
+            }
+        });
+        eveningTimePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(v).navigate(R.id.action_generalAppScreen_to_timeSelectFragment);
             }
         });
 
+        //setupTimePicker(morningTimePicker,8,0);
+        //setupTimePicker(eveningTimePicker,16,0);
 
         return view;
     }
 
 
-    int time_hour,time_min;
+
 
     public String displayDayOfWeek(int year, int month, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
@@ -213,5 +203,8 @@ public class OrganizerScreen extends Fragment {
                 return "Unknown";
         }
     }
+
+
+
 
 }

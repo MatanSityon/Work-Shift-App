@@ -42,7 +42,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Night shift " />
+            android:text="Evening shift " />
     </LinearLayout>
 
     <LinearLayout
@@ -55,14 +55,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:text="I want morning shift!" />
 
         <Button
-            android:id="@+id/time_picker_night"
+            android:id="@+id/time_picker_evening"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:text="I want evening shift!" />
     </LinearLayout>
 
     <Button
