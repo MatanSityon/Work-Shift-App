@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navgraph"
+    app:startDestination="@id/loginScreen">
+
+    <fragment
+        android:id="@+id/loginScreen"
+        android:name="com.example.workshiftapp.fragments.LoginScreen"
+        android:label="LoginScreen" >
+        <action
+            android:id="@+id/action_loginScreen_to_registrationScreen"
+            app:destination="@id/registrationScreen" />
+        <action
+            android:id="@+id/action_loginScreen_to_organizerScreen"
+            app:destination="@id/organizerScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/registrationScreen"
+        android:name="com.example.workshiftapp.fragments.RegistrationScreen"
+        android:label="RegistrationScreen" >
+        <action
+            android:id="@+id/action_registrationScreen_to_loginScreen"
+            app:destination="@id/loginScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/organizerScreen"
+        android:name="com.example.workshiftapp.fragments.OrganizerScreen"
+        android:label="fragment_organizer_screen"
+        tools:layout="@layout/fragment_organizer_screen" >
+        <action
+            android:id="@+id/action_organizerScreen_to_loginScreen"
+            app:destination="@id/loginScreen" />
+    </fragment>
+</navigation>
