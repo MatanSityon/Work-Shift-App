@@ -298,7 +298,7 @@ public class OrganizerScreen extends Fragment {
                     String fullName = String.valueOf(dataSnapshot.child("fullName").getValue());
 
                    // String start = startTimePicker.getText().toString();
-
+                    //matan hou hamelech
 
                     callback.onUserNameRetrieved(fullName);  // Pass the result via callback
                 } else {
