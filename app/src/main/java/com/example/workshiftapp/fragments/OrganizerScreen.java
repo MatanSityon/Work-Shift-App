@@ -24,7 +24,10 @@ import android.view.ViewGroup;
 //import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
-        import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -56,6 +59,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
 /**
@@ -76,6 +83,8 @@ public class OrganizerScreen extends Fragment {
     private String mParam2;
     public static String emailUser;
     private String fullName;
+    private String full_name;
+
     public interface UserNameCallback {
         void onUserNameRetrieved(String fullName);
     }
@@ -154,21 +163,61 @@ public class OrganizerScreen extends Fragment {
         int year = calendarInstance.get(Calendar.YEAR);
         int month = calendarInstance.get(Calendar.MONTH);
         int dayOfMonth = calendarInstance.get(Calendar.DAY_OF_MONTH);
+        GridLayout workersGrid = view.findViewById(R.id.workers_textbox);
 
         // Display day of the week for current day
         date.setText(displayDayOfWeek(year, month, dayOfMonth));
 
         calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-
-
             @Override
             public void onSelectedDayChange(CalendarView view, int year, int month,
                                             int dayOfMonth) {
                 date.setText(displayDayOfWeek(year, month, dayOfMonth));
+                String sYear = String.valueOf(year);
+                String sMonth = String.valueOf(month+1);
+                String sDay= String.valueOf(dayOfMonth);
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference("Root").child("Calendar").child(sYear).child(sMonth).child(sDay);
+                myRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        DataSnapshot snapshot = task.getResult();
 
+                        // Iterate through each user under the day node
+                        for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                            String name = userSnapshot.child("worker").getValue(String.class);
+                            String startTime = userSnapshot.child("startTime").getValue(String.class);
+                            String endTime = userSnapshot.child("endTime").getValue(String.class);
+
+                            if (name != null && startTime != null && endTime != null) {
+                                // Create a vertical LinearLayout for each worker
+                                LinearLayout workerLayout = new LinearLayout(getActivity());
+                                workerLayout.setOrientation(LinearLayout.VERTICAL);
+                                workerLayout.setPadding(16, 16, 16, 16);
+
+                                // Create TextViews for the worker's details
+                                TextView nameTextView = new TextView(getActivity());
+                                nameTextView.setText("Worker: " + name);
+
+                                TextView startTextView = new TextView(getActivity());
+                                startTextView.setText("Start work at: " + startTime);
+
+                                TextView endTextView = new TextView(getActivity());
+                                endTextView.setText("End work at: " + endTime);
+
+                                // Add TextViews to the worker's layout
+                                workerLayout.addView(nameTextView);
+                                workerLayout.addView(startTextView);
+                                workerLayout.addView(endTextView);
+
+                                // Add the worker layout to the GridLayout
+                                workersGrid.addView(workerLayout);
+                            }
+                        }
+
+                    }
+                });
             }
-
-
         });
 
         Button startTimePicker = view.findViewById(R.id.time_picker_start);
@@ -191,6 +240,7 @@ public class OrganizerScreen extends Fragment {
                     public void onUserNameRetrieved(String fullName) {
                         if (fullName != null) {
                             // Use the fullName here, now that it's available
+                            String full_name =fullName;
                             addShift(date, start, end, fullName);
                         }
                     }
@@ -278,7 +328,7 @@ public class OrganizerScreen extends Fragment {
         String year = sanitizedDate.substring(lastSlash+1);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Root").child("Calendar").child(year).child(month).child(day);
+        DatabaseReference myRef = database.getReference("Root").child("Calendar").child(year).child(month).child(day).child(name);
         //Worker worker = new Worker(email, fullName);
         //myRef.setValue(date+" Start time:"+start+" End time: "+end);
         Shift shift = new Shift(name,start,end);
@@ -308,6 +358,5 @@ public class OrganizerScreen extends Fragment {
             }
         });
     }
-
 
 }
