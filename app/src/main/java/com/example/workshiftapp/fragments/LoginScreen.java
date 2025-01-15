@@ -67,6 +67,7 @@ public class LoginScreen extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login_screen, container, false);
+
         Button button_Login = view.findViewById(R.id.cirLoginButton);
         Button button_Register_Page = view.findViewById(R.id.logRegisterBtn);
         com.google.android.gms.common.SignInButton googleSignInButton = view.findViewById(R.id.signIn); // Added this line

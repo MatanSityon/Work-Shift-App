@@ -25,6 +25,7 @@ public class GeneralAppScreen extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    public static String emailUser;
 
     public GeneralAppScreen() {
         // Required empty public constructor
@@ -60,6 +61,7 @@ public class GeneralAppScreen extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         if (getChildFragmentManager().findFragmentById(R.id.fragmentContainerView2) == null) {
             Fragment childFragment = new OrganizerScreen();
@@ -67,6 +69,7 @@ public class GeneralAppScreen extends Fragment {
                     .replace(R.id.fragmentContainerView2, childFragment)
                     .commit();
         }
+
         return inflater.inflate(R.layout.fragment_general_app_screen, container, false);
     }
 }

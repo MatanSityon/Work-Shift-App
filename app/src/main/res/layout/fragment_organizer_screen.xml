@@ -34,15 +34,15 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Morning shift" />
+            android:text="Start time" />
 
-        <TextView
-            android:id="@+id/textView3"
+        <Button
+            android:id="@+id/time_picker_start"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="Evening shift " />
+            android:text="00:00" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -50,27 +50,40 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/time_picker_morning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="I want morning shift!" />
+            android:gravity="center"
+            android:text="End time" />
 
         <Button
-            android:id="@+id/time_picker_evening"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/time_picker_end"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="I want evening shift!" />
+            android:text="00:00" />
+
     </LinearLayout>
+
+
+    <Button
+        android:id="@+id/submit_time_btn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/login_button"
+        android:text="shift me!"
+        android:textColor="@color/whiteTextColor" />
 
     <Button
         android:id="@+id/logOutBtn"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="50dp"
         android:background="@drawable/login_button"
         android:text="Sign Out"
         android:textColor="@color/whiteTextColor" />

@@ -31,13 +31,5 @@
         <action
             android:id="@+id/action_generalAppScreen_to_loginScreen"
             app:destination="@id/loginScreen" />
-        <action
-            android:id="@+id/action_generalAppScreen_to_timeSelectFragment"
-            app:destination="@id/timeSelectFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/timeSelectFragment"
-        android:name="com.example.workshiftapp.fragments.TimeSelectFragment"
-        android:label="fragment_time_select"
-        tools:layout="@layout/fragment_time_select" />
 </navigation>

@@ -3,14 +3,20 @@ package com.example.workshiftapp.fragments;
 //import static android.text.format.DateUtils.getDayOfWeekString;
 //import static androidx.navigation.fragment.FragmentKt.findNavController;
 
-import android.app.TimePickerDialog;
 //import android.content.Intent;
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import android.app.Activity;
+import android.app.TimePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 //import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,31 +24,38 @@ import android.view.ViewGroup;
 //import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
+        import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
+import com.example.workshiftapp.models.Shift;
+import com.example.workshiftapp.models.Worker;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.button.MaterialButton;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import androidx.navigation.Navigation;
-
+import java.lang.reflect.Field;
 import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -60,6 +73,9 @@ public class OrganizerScreen extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    public static String emailUser;
+    private String fullName;
+
 
     public OrganizerScreen() {
         // Required empty public constructor
@@ -95,8 +111,11 @@ public class OrganizerScreen extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View view =inflater.inflate(R.layout.fragment_organizer_screen, container, false);
+        GeneralAppScreen generalAppScreen = new GeneralAppScreen();
+        //emailUser = generalAppScreen.emailUser;
         Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
 
             googleSignOutButton.setOnClickListener(new View.OnClickListener(){
@@ -148,23 +167,25 @@ public class OrganizerScreen extends Fragment {
 
         });
 
-        Button morningTimePicker = view.findViewById(R.id.time_picker_morning);
-        Button eveningTimePicker = view.findViewById(R.id.time_picker_evening);
-        morningTimePicker.setOnClickListener(new View.OnClickListener() {
+        Button startTimePicker = view.findViewById(R.id.time_picker_start);
+        Button endTimePicker = view.findViewById(R.id.time_picker_end);
+
+
+        setupTimePicker(startTimePicker,8,0);
+        setupTimePicker(endTimePicker,16,0);
+
+        Button assignShiftBtn = view.findViewById(R.id.submit_time_btn);
+        assignShiftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(v).navigate(R.id.action_generalAppScreen_to_timeSelectFragment);
-            }
-        });
-        eveningTimePicker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Navigation.findNavController(v).navigate(R.id.action_generalAppScreen_to_timeSelectFragment);
+                String start = startTimePicker.getText().toString();
+                String end = endTimePicker.getText().toString();
+                String name = getUserName(emailUser);
+                addShift(v,start,end,name);
+
             }
         });
 
-        //setupTimePicker(morningTimePicker,8,0);
-        //setupTimePicker(eveningTimePicker,16,0);
 
         return view;
     }
@@ -203,8 +224,67 @@ public class OrganizerScreen extends Fragment {
                 return "Unknown";
         }
     }
+    private void setupTimePicker(Button button, int initialHour, int initialMinute) {
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(
+                        getActivity(),
+                        android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                // Formatting the time to 12-hour format
+                                String time = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+                                SimpleDateFormat f24Hour = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                                try {
+                                    Date date = f24Hour.parse(time);
+                                    SimpleDateFormat f12Hour = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
+                                    String time12hr = f12Hour.format(date);
+                                    button.setText(time12hr);  // Set button text or handle time as needed
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, initialHour, initialMinute, false
+                );
+                timePickerDialog.show();
+            }
+        });
+    }
 
+    private void addShift(View view,String start, String end, String name)
+    {
+        String date = view.findViewById(R.id.selectedDay).toString();
+        int space = date.indexOf("\n");
+        String sanitizedDate = date.substring(space + 1);
+        int slash = sanitizedDate.indexOf("/");
+        String day = sanitizedDate.substring(0,slash);
+        int lastSlash = sanitizedDate.lastIndexOf("/");
+        String month = sanitizedDate.substring(slash+1,lastSlash);
+        String year = sanitizedDate.substring(lastSlash+1);
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("Root").child("Calendar").child(year).child(month).child(day);
+        //Worker worker = new Worker(email, fullName);
+        //myRef.setValue(date+" Start time:"+start+" End time: "+end);
+        Shift shift = new Shift(name,start,end);
+        myRef.setValue(shift);
 
+    }
+
+    private String getUserName(String email) {
+        String sanitizedEmail = email.replace(".", "_");
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Root/Users").child(sanitizedEmail);
+        ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                DataSnapshot dataSnapshot = task.getResult();
+               fullName = String.valueOf(dataSnapshot.child("fullName").getValue());
+            }
+        });
+        return fullName;
+
+    }
 
 }

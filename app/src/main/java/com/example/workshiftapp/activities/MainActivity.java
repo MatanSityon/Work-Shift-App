@@ -20,6 +20,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
 import com.example.workshiftapp.R;
+import com.example.workshiftapp.fragments.GeneralAppScreen;
+import com.example.workshiftapp.fragments.OrganizerScreen;
 import com.example.workshiftapp.models.Worker;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     public GoogleSignInClient googleSignInClient;
     ShapeableImageView imageView;
     TextView name, mail;
+    public String userName;
+
 
     //test 2a
     //test 3
@@ -126,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
     public void login(View v) {
         String email = ((EditText) findViewById(R.id.login_TextEmail)).getText().toString();
         String password = ((EditText) findViewById(R.id.login_TextPassword)).getText().toString();
+        //Bundle bundle = new Bundle();
+        //bundle.putString("email", email);
+        OrganizerScreen.emailUser=email;
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -165,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         String sanitizedEmail = email.replace(".", "_");
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("Users").child(sanitizedEmail);
+        DatabaseReference myRef = database.getReference("Root").child("Users").child(sanitizedEmail);
         Worker worker = new Worker(email, fullName);
         myRef.setValue(worker);
     }
