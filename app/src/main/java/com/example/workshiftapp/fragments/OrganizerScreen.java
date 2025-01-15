@@ -65,6 +65,7 @@ import java.util.Locale;
  */
 public class OrganizerScreen extends Fragment {
 
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -75,6 +76,9 @@ public class OrganizerScreen extends Fragment {
     private String mParam2;
     public static String emailUser;
     private String fullName;
+    public interface UserNameCallback {
+        void onUserNameRetrieved(String fullName);
+    }
 
 
     public OrganizerScreen() {
@@ -180,8 +184,17 @@ public class OrganizerScreen extends Fragment {
             public void onClick(View v) {
                 String start = startTimePicker.getText().toString();
                 String end = endTimePicker.getText().toString();
-                String name = getUserName(emailUser);
-                addShift(v,start,end,name);
+                //addShift(v,start,end,emailUser);
+                String date = ((TextView) view.findViewById(R.id.selectedDay)).getText().toString();
+                getUserName(emailUser, new UserNameCallback() {
+                    @Override
+                    public void onUserNameRetrieved(String fullName) {
+                        if (fullName != null) {
+                            // Use the fullName here, now that it's available
+                            addShift(date, start, end, fullName);
+                        }
+                    }
+                });
 
             }
         });
@@ -253,9 +266,9 @@ public class OrganizerScreen extends Fragment {
         });
     }
 
-    private void addShift(View view,String start, String end, String name)
+    private void addShift(String date,String start, String end, String name)
     {
-        String date = view.findViewById(R.id.selectedDay).toString();
+        //String date = view.findViewById(R.id.selectedDay).toString();
         int space = date.indexOf("\n");
         String sanitizedDate = date.substring(space + 1);
         int slash = sanitizedDate.indexOf("/");
@@ -273,18 +286,28 @@ public class OrganizerScreen extends Fragment {
 
     }
 
-    private String getUserName(String email) {
+    private void getUserName(String email, UserNameCallback callback) {
         String sanitizedEmail = email.replace(".", "_");
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Root/Users").child(sanitizedEmail);
-        ref.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Root");
+
+        ref.child("Users").child(sanitizedEmail).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-                DataSnapshot dataSnapshot = task.getResult();
-               fullName = String.valueOf(dataSnapshot.child("fullName").getValue());
+                if (task.isSuccessful()) {
+                    DataSnapshot dataSnapshot = task.getResult();
+                    String fullName = String.valueOf(dataSnapshot.child("fullName").getValue());
+
+                   // String start = startTimePicker.getText().toString();
+
+
+                    callback.onUserNameRetrieved(fullName);  // Pass the result via callback
+                } else {
+                    Log.e("Firebase", "Failed to get data: " + task.getException());
+                    callback.onUserNameRetrieved(null);  // Handle failure (optional)
+                }
             }
         });
-        return fullName;
-
     }
+
 
 }
