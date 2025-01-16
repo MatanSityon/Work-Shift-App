@@ -1,6 +1,9 @@
 package com.example.workshiftapp.fragments;
 
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,8 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -28,12 +32,21 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import android.content.Intent;
+import android.provider.CalendarContract;
+import android.net.Uri;
+import java.util.Calendar;
+import java.util.TimeZone;
+import android.provider.CalendarContract;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
+import android.provider.CalendarContract.Events;
 
 public class OrganizerScreen extends Fragment {
 
@@ -219,6 +232,7 @@ public class OrganizerScreen extends Fragment {
 
         Shift shift = new Shift(name, start, end);
         myRef.setValue(shift);
+        //addEventToCalendar(year,month,day,start,end);
     }
 
     private void getUserName(String email, UserNameCallback callback) {
@@ -269,5 +283,71 @@ public class OrganizerScreen extends Fragment {
         handleDateChange(year, month, day, dateTextView, workersGrid);
     }
 
+
+    /*public void addEventToCalendar(String year,String month,String day, String startTime,String endTime) {
+        // Check if permission is granted
+
+        String[] timeParts_start = startTime.split(" ");
+        String startPartTime = timeParts_start[0];
+        String startPeriod = timeParts_start[1]; // AM/PM
+        String[] datePartsStart = startPartTime.split(":");
+        int startHour = Integer.parseInt(datePartsStart[0]);
+        int startMin = Integer.parseInt(datePartsStart[1]);
+
+        if (startPeriod.equalsIgnoreCase("PM") && startHour != 12) {
+            startHour += 12;
+        } else if (startPeriod.equalsIgnoreCase("AM") && startHour == 12) {
+            startHour = 0; // Midnight case
+        }
+
+        String[] timeParts_end = endTime.split(" ");
+        String endPartTime = timeParts_end[0];
+        String endPeriod = timeParts_end[1]; // AM/PM
+        String[] datePartsEnd = endPartTime.split(":");
+        int endHour = Integer.parseInt(datePartsEnd[0]);
+        int endMin = Integer.parseInt(datePartsEnd[1]);
+
+        if (endPeriod.equalsIgnoreCase("PM") && endHour != 12) {
+            endHour += 12;
+        } else if (endPeriod.equalsIgnoreCase("AM") && endHour == 12) {
+            endHour = 0; // Midnight case
+        }
+
+
+        // Get calendar times in milliseconds
+        Calendar beginTime = Calendar.getInstance();
+        beginTime.set(Integer.parseInt(year), Integer.parseInt(month) - 1, Integer.parseInt(day), startHour, startMin);
+
+        Calendar endTimeCalendar = Calendar.getInstance();
+        endTimeCalendar.set(Integer.parseInt(year), Integer.parseInt(month) - 1, Integer.parseInt(day), endHour, endMin);
+
+        long startMillis = beginTime.getTimeInMillis();
+        long endMillis = endTimeCalendar.getTimeInMillis();
+
+        // Insert event using ContentResolver
+        if (getActivity() != null) { // Ensure getActivity() is not null
+            ContentResolver cr = getActivity().getContentResolver();
+            ContentValues values = new ContentValues();
+
+            values.put(CalendarContract.Events.DTSTART, startMillis);
+            values.put(CalendarContract.Events.DTEND, endMillis);
+            values.put(CalendarContract.Events.TITLE, "Meeting with Team");
+            values.put(CalendarContract.Events.DESCRIPTION, "Discuss project updates");
+            values.put(CalendarContract.Events.CALENDAR_ID, 1); // Default calendar ID, query for available IDs if needed
+            values.put(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
+
+            // Insert event into the calendar
+            Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+
+            if (uri != null) {
+                long eventId = Long.parseLong(uri.getLastPathSegment());
+                Toast.makeText(getActivity(), "Event added to calendar with ID: " + eventId, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getActivity(), "Failed to add event to calendar", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Log.e("addEventToCalendar", "getActivity() returned null");
+        }
+    }*/
 
 }
