@@ -94,12 +94,13 @@
         android:textColor="@color/whiteTextColor" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/SyncGoogleBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
         android:clickable="true"
-        android:src="@drawable/sync" />
+        android:src="@android:drawable/ic_popup_sync"
+        app:backgroundTint="@color/colorAccent" />
 
     <Button
         android:id="@+id/logOutBtn"

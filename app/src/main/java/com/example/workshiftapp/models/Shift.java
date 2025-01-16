@@ -4,13 +4,23 @@ public class Shift {
     String worker;
     String startTime;
     String endTime;
+    String date;
 
 
-    public Shift(String worker, String startTime, String endTime) {
+    public Shift(String worker, String startTime, String endTime, String date) {
         this.worker = worker;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.date = date;
     }
+
+
+    public Shift(String worker, String startTime, String endTime) {
+        this.date = worker;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
 
     public String getWorker() {
         return worker;
@@ -34,5 +44,13 @@ public class Shift {
 
     public void setEndTime(String endTime) {
         this.endTime = endTime;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

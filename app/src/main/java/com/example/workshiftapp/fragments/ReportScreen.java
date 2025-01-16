@@ -122,9 +122,6 @@ public class ReportScreen extends Fragment {
         CustomAdapter customAdapter = new CustomAdapter(arr);
         recyclerView.setAdapter(customAdapter); // Set the adapter here
 
-
-
-
         //CustomAdapter customAdapter = new CustomAdapter(arr);
         Button reportBtn = view.findViewById(R.id.ReportBtn);
 
@@ -142,7 +139,7 @@ public class ReportScreen extends Fragment {
                         .child(yearSelected)
                         .child(monthSelected);
 
-                monthRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                monthRef.addListenerForSingleValueEvent(new ValueEventListener(){
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         //arr.clear(); // Clear the array to avoid duplicate data

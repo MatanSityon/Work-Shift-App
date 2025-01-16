@@ -24,16 +24,25 @@ import androidx.navigation.Navigation;
 
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
+import com.example.workshiftapp.models.CalendarShift;
+import com.example.workshiftapp.models.CardShift;
 import com.example.workshiftapp.models.Shift;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -113,15 +122,39 @@ public class OrganizerScreen extends Fragment {
 
         // Handle Google sign-out
         googleSignOutButton.setOnClickListener(v -> {
-            MainActivity mainActivity = (MainActivity) getActivity();
-            if (mainActivity != null) {
-                mainActivity.googleSignInClient.signOut().addOnSuccessListener(unused -> {
-                    mAuth.signOut();
-                    Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
-                });
-            } else {
-                Toast.makeText(requireContext(), "Unable to sign out", Toast.LENGTH_SHORT).show();
+            if (MainActivity.googleAccountCredential == null)
+            {
+                Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
+                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                MainActivity mainActivity = (MainActivity) getActivity();
+                if (mainActivity != null) {
+                    mainActivity.googleSignInClient.signOut().addOnSuccessListener(unused -> {
+                        mAuth.signOut();
+                        MainActivity.googleAccountCredential = null;
+                        Toast.makeText(requireContext(), "Signed out from Google account", Toast.LENGTH_SHORT).show();
+                        Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
+                    });
+                } else {
+                    Toast.makeText(requireContext(), "Unable to sign out", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+
+        FloatingActionButton syncBtn = view.findViewById(R.id.SyncGoogleBtn);
+        MainActivity mainActivity = (MainActivity) getActivity();
+
+
+       syncBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<CalendarShift> eventsToSync = fetchEventsList();
+
+
+                mainActivity.addEventToCalendar();
             }
         });
 
@@ -282,6 +315,63 @@ public class OrganizerScreen extends Fragment {
         // Refresh the data for the selected date
         handleDateChange(year, month, day, dateTextView, workersGrid);
     }
+
+    private ArrayList<CalendarShift> fetchEventsList() {
+        ArrayList<CalendarShift> arr = new ArrayList<>();
+
+        // Start from the root reference of the calendar
+        DatabaseReference calendarRef = FirebaseDatabase.getInstance()
+                .getReference("Root")
+                .child("Calendar");
+
+        calendarRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Iterate over all years
+                for (DataSnapshot yearSnapshot : snapshot.getChildren()) {
+                    String year = yearSnapshot.getKey(); // Year key (e.g., "2025")
+
+                    // Iterate over all months in the year
+                    for (DataSnapshot monthSnapshot : yearSnapshot.getChildren()) {
+                        String month = monthSnapshot.getKey(); // Month key (e.g., "1", "2", ... "12")
+
+                        // Iterate over all days in the month
+                        for (DataSnapshot daySnapshot : monthSnapshot.getChildren()) {
+                            String day = daySnapshot.getKey(); // Day key (e.g., "1", "2", ... "31")
+
+                            // Check if the user's name exists under this day
+                            DataSnapshot userSnapshot = daySnapshot.child(OrganizerScreen.fullName);
+                            if (userSnapshot.exists()) {
+                                // Retrieve startTime and endTime
+                                String startTime = userSnapshot.child("startTime").getValue(String.class);
+                                String endTime = userSnapshot.child("endTime").getValue(String.class);
+
+                                if (startTime != null && endTime != null) {
+                                    // Format the date (e.g., "DD/MM/YYYY")
+                                    String date = day + "/" + month + "/" + year;
+
+                                    // Create a CalendarShift object and add it to the list
+                                    CalendarShift shift = new CalendarShift(date, startTime, endTime);
+                                    arr.add(shift);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Debug: Log the number of events fetched
+                Log.d("fetchEventsList", "Total events: " + arr.size());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("FirebaseError", "Failed to fetch data: " + error.getMessage());
+            }
+        });
+
+        return arr;
+    }
+
 
 
     /*public void addEventToCalendar(String year,String month,String day, String startTime,String endTime) {
