@@ -68,9 +68,15 @@ public class MainActivity extends AppCompatActivity {
         public void onActivityResult(ActivityResult result) {
             if (result.getResultCode() == RESULT_OK) {
                 Task<GoogleSignInAccount> accountTask = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+
                 View btn = (View)findViewById(R.id.signIn);
                 try {
                     GoogleSignInAccount signInAccount = accountTask.getResult(ApiException.class);
+                    if (signInAccount != null) {
+                        OrganizerScreen.fullName = signInAccount.getDisplayName();
+                        OrganizerScreen.emailUser = signInAccount.getEmail();
+                        String userPhoto = signInAccount.getPhotoUrl() != null ? signInAccount.getPhotoUrl().toString() : "No photo available";
+                    }
                     AuthCredential authCredential = GoogleAuthProvider.getCredential(signInAccount.getIdToken(), null);
                     mAuth.signInWithCredential(authCredential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override

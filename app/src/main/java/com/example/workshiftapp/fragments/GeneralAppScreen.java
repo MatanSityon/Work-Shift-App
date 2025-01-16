@@ -2,13 +2,20 @@ package com.example.workshiftapp.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.renderscript.ScriptGroup;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.example.workshiftapp.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,6 +33,7 @@ public class GeneralAppScreen extends Fragment {
     private String mParam1;
     private String mParam2;
     public static String emailUser;
+    private Fragment childFragment;
 
     public GeneralAppScreen() {
         // Required empty public constructor
@@ -49,6 +57,8 @@ public class GeneralAppScreen extends Fragment {
         return fragment;
     }
 
+    private BottomNavigationView bottomNavigationView;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +66,7 @@ public class GeneralAppScreen extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -64,12 +75,38 @@ public class GeneralAppScreen extends Fragment {
 
         // Inflate the layout for this fragment
         if (getChildFragmentManager().findFragmentById(R.id.fragmentContainerView2) == null) {
-            Fragment childFragment = new OrganizerScreen();
+            childFragment = new OrganizerScreen();
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainerView2, childFragment)
                     .commit();
         }
 
-        return inflater.inflate(R.layout.fragment_general_app_screen, container, false);
+
+        View view =  inflater.inflate(R.layout.fragment_general_app_screen, container, false);
+        bottomNavigationView = view.findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                int id = item.getItemId();
+                if (id == R.id.calendarBtn)
+                    childFragment = new OrganizerScreen();
+                else if (id == R.id.payrollBtn)
+                    childFragment = new ReportScreen();
+                else if (id == R.id.settingsBtn)
+                    childFragment = new SettingsScreen();
+                else if (id == R.id.chatBtn)
+                    childFragment = new ChatScreen();
+
+                getChildFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView2, childFragment)
+                        .commit();
+
+                return true;
+            }
+        });
+
+
+        return view;
     }
 }
