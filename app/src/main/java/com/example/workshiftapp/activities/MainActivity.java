@@ -20,6 +20,7 @@ import androidx.navigation.Navigation;
 
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.fragments.OrganizerScreen;
+import com.example.workshiftapp.models.CalendarShift;
 import com.example.workshiftapp.models.Worker;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -42,6 +43,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
@@ -167,36 +169,64 @@ public class MainActivity extends AppCompatActivity {
 
     // Example method to add an event (could be called from a Fragment)
     // Example method to add an event (could be called from a Fragment)
-    public void addEventToCalendar() {
+    public void addEventToCalendar(ArrayList<CalendarShift> arrayList) {
         new Thread(() -> {
             try {
                 Calendar service = getCalendarService();
 
-                com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event()
-                        .setSummary("Test Shift")
-                        .setLocation("Office")
-                        .setDescription("Sample Shift Event");
+                for (CalendarShift shift : arrayList) {
 
-                // Example start/end times (RFC3339)
-                String startDateTimeStr = "2025-01-19T10:00:00";
-                String endDateTimeStr   = "2025-01-19T12:00:00";
+                    com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event()
+                            .setSummary("Shift");
 
 
-                com.google.api.client.util.DateTime startDateTime = new com.google.api.client.util.DateTime(startDateTimeStr);
-                com.google.api.services.calendar.model.EventDateTime start =
-                        new com.google.api.services.calendar.model.EventDateTime().setDateTime(startDateTime);
-                event.setStart(start);
+                    String[] timeParts_start = shift.getStartTime().split(" ");
+                    String startPartTime = timeParts_start[0];
+                    String startPeriod = timeParts_start[1]; // AM/PM
+                    String[] datePartsStart = startPartTime.split(":");
+                    int startHour = Integer.parseInt(datePartsStart[0]);
+                    int startMin = Integer.parseInt(datePartsStart[1]);
 
-                com.google.api.client.util.DateTime endDateTime = new com.google.api.client.util.DateTime(endDateTimeStr);
-                com.google.api.services.calendar.model.EventDateTime end =
-                        new com.google.api.services.calendar.model.EventDateTime().setDateTime(endDateTime);
-                event.setEnd(end);
+                    if (startPeriod.equalsIgnoreCase("PM") && startHour != 12) {
+                        startHour += 12;
+                    } else if (startPeriod.equalsIgnoreCase("AM") && startHour == 12) {
+                        startHour = 0; // Midnight case
+                    }
 
-                // Insert event
-                String calendarId = "primary";
-                event = service.events().insert(calendarId, event).execute();
+                    String[] timeParts_end = shift.getEndTime().split(" ");
+                    String endPartTime = timeParts_end[0];
+                    String endPeriod = timeParts_end[1]; // AM/PM
+                    String[] datePartsEnd = endPartTime.split(":");
+                    int endHour = Integer.parseInt(datePartsEnd[0]);
+                    int endMin = Integer.parseInt(datePartsEnd[1]);
 
-                Log.d("MainActivity", "Event created: " + event.getHtmlLink());
+                    if (endPeriod.equalsIgnoreCase("PM") && endHour != 12) {
+                        endHour += 12;
+                    } else if (endPeriod.equalsIgnoreCase("AM") && endHour == 12) {
+                        endHour = 0; // Midnight case
+                    }
+
+                    // Example start/end times (RFC3339)
+                    String startDateTimeStr = shift.getDate() + startHour + startMin + ":00+02:00";
+                    String endDateTimeStr = shift.getDate()+ endHour + endMin + ":00+02:00";
+
+
+                    com.google.api.client.util.DateTime startDateTime = new com.google.api.client.util.DateTime(startDateTimeStr);
+                    com.google.api.services.calendar.model.EventDateTime start =
+                            new com.google.api.services.calendar.model.EventDateTime().setDateTime(startDateTime);
+                    event.setStart(start);
+
+                    com.google.api.client.util.DateTime endDateTime = new com.google.api.client.util.DateTime(endDateTimeStr);
+                    com.google.api.services.calendar.model.EventDateTime end =
+                            new com.google.api.services.calendar.model.EventDateTime().setDateTime(endDateTime);
+                    event.setEnd(end);
+
+                    // Insert event
+                    String calendarId = "primary";
+                    event = service.events().insert(calendarId, event).execute();
+
+                    Log.d("MainActivity", "Event created: " + event.getHtmlLink());
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
