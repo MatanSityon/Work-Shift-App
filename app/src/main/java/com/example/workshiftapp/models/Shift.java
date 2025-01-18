@@ -16,7 +16,7 @@ public class Shift {
 
 
     public Shift(String worker, String startTime, String endTime) {
-        this.date = worker;
+        this.worker = worker;
         this.startTime = startTime;
         this.endTime = endTime;
     }

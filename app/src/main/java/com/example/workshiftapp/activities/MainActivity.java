@@ -193,6 +193,10 @@ public class MainActivity extends AppCompatActivity {
                         startHour = 0; // Midnight case
                     }
 
+                    // Ensure startHour and startMin are formatted as two digits
+                    String startHourStr = String.format("%02d", startHour); // Format hour with leading zero if needed
+                    String startMinStr = String.format("%02d", startMin); // Format minute with leading zero if needed
+
                     String[] timeParts_end = shift.getEndTime().split(" ");
                     String endPartTime = timeParts_end[0];
                     String endPeriod = timeParts_end[1]; // AM/PM
@@ -206,9 +210,16 @@ public class MainActivity extends AppCompatActivity {
                         endHour = 0; // Midnight case
                     }
 
+                    // Ensure endHour and endMin are formatted as two digits
+                    String endHourStr = String.format("%02d", endHour); // Format hour with leading zero if needed
+                    String endMinStr = String.format("%02d", endMin); // Format minute with leading zero if needed
+
+                    // You can now use startHourStr, startMinStr, endHourStr, and endMinStr as formatted values
+
+
                     // Example start/end times (RFC3339)
-                    String startDateTimeStr = shift.getDate() + startHour + startMin + ":00+02:00";
-                    String endDateTimeStr = shift.getDate()+ endHour + endMin + ":00+02:00";
+                    String startDateTimeStr = shift.getDate() + startHourStr +":"+ startMinStr + ":00+02:00";
+                    String endDateTimeStr = shift.getDate()+ endHourStr +":"+ endMinStr + ":00+02:00";
 
 
                     com.google.api.client.util.DateTime startDateTime = new com.google.api.client.util.DateTime(startDateTimeStr);

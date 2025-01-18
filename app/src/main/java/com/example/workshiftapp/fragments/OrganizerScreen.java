@@ -389,9 +389,6 @@ public class OrganizerScreen extends Fragment {
         });
     }
 
-
-
-
     public void addEventToCalendar(String year,String month,String day, String startTime,String endTime) {
         // Check if permission is granted
 
