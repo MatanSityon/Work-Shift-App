@@ -53,13 +53,12 @@ public class OrganizerScreen extends Fragment {
     public static String fullName;
     private boolean isOnShift;
 
-
-
     private MainActivity mainActivity;
     Button assignShiftBtn;
 
     GoogleSignInClient googleSignInClient;
     GoogleAccountCredential googleAccountCredential;
+
 
 
     public interface OnEventsFetchedCallback {
@@ -79,7 +78,6 @@ public class OrganizerScreen extends Fragment {
             googleSignInClient = mainActivity.getGetGoogleSignInClient();
             emailUser = mainActivity.getEmailUser();
             fullName = mainActivity.getFullName();
-
         }
 
 
@@ -90,7 +88,7 @@ public class OrganizerScreen extends Fragment {
         Button startTimePicker = view.findViewById(R.id.time_picker_start);
         Button endTimePicker = view.findViewById(R.id.time_picker_end);
         assignShiftBtn = view.findViewById(R.id.submit_time_btn);
-        Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
+        //Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
         FloatingActionButton syncBtn = view.findViewById(R.id.SyncGoogleBtn);
 
         // Set up time pickers
@@ -107,8 +105,6 @@ public class OrganizerScreen extends Fragment {
 
         // Handle shift assignment
         assignShiftBtn.setOnClickListener(new View.OnClickListener() {
-            //boolean isFirstPurpose = true;
-
             @Override
             public void onClick(View view) {
                 if (assignShiftBtn.getText().equals("Shift Me!")) {
@@ -138,45 +134,11 @@ public class OrganizerScreen extends Fragment {
                         refreshDataAfterShiftAssignment(selectedDate, dateTextView, workersGrid); // Refresh UI
                     }
                 }
-
-                // Toggle the purpose state
-                //isFirstPurpose = !isFirstPurpose;
             }
         });
 
 
-        // Handle Google sign-out
-        googleSignOutButton.setOnClickListener(v -> {
-            if (googleAccountCredential == null)
-            {
-                Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
-                mainActivity.setEmailUser(null);
-                mainActivity.setUserPhoto(null);
-                mainActivity.setFullName(null);
-                mainActivity.setGoogleAccountCredential(null);
-                mainActivity.setGoogleSignInClient(null);
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-                googleSignInClient.signOut().addOnSuccessListener(unused -> {
-                    mAuth.signOut();
-                    googleAccountCredential = null;
-                    mainActivity.setEmailUser(null);
-                    mainActivity.setUserPhoto(null);
-                    mainActivity.setFullName(null);
-                    mainActivity.setGoogleAccountCredential(null);
-                    mainActivity.setGoogleSignInClient(null);
 
-                    Toast.makeText(requireContext(), "Signed out from Google account", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
-
-                    });
-
-
-            }
-
-        });
 
         syncBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -354,7 +316,6 @@ public class OrganizerScreen extends Fragment {
             }
         });
     }
-
 
     public String displayDayOfWeek(int year, int month, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
@@ -640,7 +601,5 @@ public class OrganizerScreen extends Fragment {
         }
         startActivity(intent);
     }
-
-
 
 }

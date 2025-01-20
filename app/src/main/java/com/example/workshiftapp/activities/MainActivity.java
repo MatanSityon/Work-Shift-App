@@ -228,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
         this.emailUser = emailUser;
     }
 
+
     public void setGoogleSignInClient(GoogleSignInClient googleSignInClient) {
         this.googleSignInClient = googleSignInClient;
     }

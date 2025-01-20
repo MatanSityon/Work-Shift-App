@@ -82,34 +82,37 @@
             android:padding="8dp" />
     </HorizontalScrollView>
 
-
-    <Button
-        android:id="@+id/submit_time_btn"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/login_button"
-        android:text="shift me!"
-        android:textColor="@color/whiteTextColor" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/SyncGoogleBtn"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:clickable="true"
-        android:src="@android:drawable/ic_popup_sync"
-        app:backgroundTint="@color/colorAccent" />
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/logOutBtn"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/login_button"
-        android:text="Sign Out"
-        android:textColor="@color/whiteTextColor" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:orientation="vertical">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/SyncGoogleBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:clickable="true"
+                android:src="@android:drawable/ic_popup_sync"
+                app:backgroundTint="@color/colorAccent" />
+
+            <Button
+                android:id="@+id/submit_time_btn"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_marginBottom="50dp"
+                android:background="@drawable/login_button"
+                android:text="shift me!"
+                android:textColor="@color/whiteTextColor" />
+        </LinearLayout>
+
+    </FrameLayout>
+
 
 </LinearLayout>
