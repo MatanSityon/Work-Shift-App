@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,7 +15,7 @@ import com.example.workshiftapp.models.CardShift;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.myViewHolder> {
+public class ShiftAdapter extends RecyclerView.Adapter<ShiftAdapter.myViewHolder> {
 
     private ArrayList<CardShift> arrLst; // Full list of countries
     private OnItemClickListener listener; // Listener for click events
@@ -27,7 +26,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.myViewHold
     }
 
     // Constructor to initialize the adapter
-    public CustomAdapter(ArrayList<CardShift> arr) {
+    public ShiftAdapter(ArrayList<CardShift> arr) {
         this.arrLst = arr;
 
     }
@@ -62,7 +61,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.myViewHold
 
     @NonNull
     @Override
-    public CustomAdapter.myViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ShiftAdapter.myViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.shift_card_view, parent, false);
         return new myViewHolder(view);
     }
@@ -74,7 +73,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.myViewHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CustomAdapter.myViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull ShiftAdapter.myViewHolder holder, @SuppressLint("RecyclerView") int position) {
         // Bind data from the filtered list
         holder.day.setText(arrLst.get(position).getDay());
         holder.date.setText(arrLst.get(position).getDate());

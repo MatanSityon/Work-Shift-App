@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Locale;
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
-import com.example.workshiftapp.adapters.CustomAdapter;
+import com.example.workshiftapp.adapters.ShiftAdapter;
 import com.example.workshiftapp.models.CardShift;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -123,8 +123,8 @@ public class ReportScreen extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.rvcon);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         ArrayList<CardShift> arr = new ArrayList<>();
-        CustomAdapter customAdapter = new CustomAdapter(arr);
-        recyclerView.setAdapter(customAdapter); // Set the adapter here
+        ShiftAdapter shiftAdapter = new ShiftAdapter(arr);
+        recyclerView.setAdapter(shiftAdapter); // Set the adapter here
 
         //CustomAdapter customAdapter = new CustomAdapter(arr);
         Button reportBtn = view.findViewById(R.id.ReportBtn);
@@ -136,7 +136,7 @@ public class ReportScreen extends Fragment {
                 String yearSelected = ((Spinner) view.findViewById(R.id.YearSpinnerView)).getSelectedItem().toString();
                 String monthSelected = String.valueOf(((Spinner) view.findViewById(R.id.MonthSpinnerView)).getSelectedItemPosition() + 1); // Convert month name to 1-based index
                 arr.clear();
-                customAdapter.notifyDataSetChanged();
+                shiftAdapter.notifyDataSetChanged();
 
                 DatabaseReference monthRef = FirebaseDatabase.getInstance()
                         .getReference("Root")
@@ -180,7 +180,7 @@ public class ReportScreen extends Fragment {
                         Log.d("RecyclerView", "Data size: " + arr.size());
 
                         // Notify the adapter that the data has changed
-                        customAdapter.notifyDataSetChanged();
+                        shiftAdapter.notifyDataSetChanged();
                     }
 
                     @Override
