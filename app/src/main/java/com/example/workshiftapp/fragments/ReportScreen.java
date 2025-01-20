@@ -1,13 +1,12 @@
 package com.example.workshiftapp.fragments;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,16 +14,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-
 import com.example.workshiftapp.R;
+import com.example.workshiftapp.activities.MainActivity;
 import com.example.workshiftapp.adapters.CustomAdapter;
 import com.example.workshiftapp.models.CardShift;
 import com.google.firebase.database.DataSnapshot;
@@ -48,6 +45,11 @@ public class ReportScreen extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private MainActivity mainActivity;
+    //private FragmentActivity organizerScreen;
+
+    private String fullName;
 
     public ReportScreen() {
         // Required empty public constructor
@@ -85,6 +87,8 @@ public class ReportScreen extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_report_screen, container, false);
+        mainActivity = (MainActivity) getActivity();
+        fullName = mainActivity.getFullName();
         String[] monthSpinnerArray = new String[] {
                 "1", "2", "3", "4", "5", "6", "7","8","9","10","11","12"
         };
@@ -92,12 +96,12 @@ public class ReportScreen extends Fragment {
                 "2020", "2021", "2022", "2023","2024","2025","2026","2027","2028","2029","2030"
         };
         Spinner month = (Spinner) view.findViewById(R.id.MonthSpinnerView);
-        ArrayAdapter<String> adapterMonth = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> adapterMonth = new ArrayAdapter<String>(mainActivity,
                 android.R.layout.simple_spinner_item, monthSpinnerArray);
         adapterMonth.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         month.setAdapter(adapterMonth);
         Spinner year = (Spinner) view.findViewById(R.id.YearSpinnerView);
-        ArrayAdapter<String> adapterYear = new ArrayAdapter<String>(getActivity(),
+        ArrayAdapter<String> adapterYear = new ArrayAdapter<String>(mainActivity,
                 android.R.layout.simple_spinner_item, yearSpinnerArray);
         adapterYear.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         year.setAdapter(adapterYear);
@@ -126,6 +130,7 @@ public class ReportScreen extends Fragment {
         Button reportBtn = view.findViewById(R.id.ReportBtn);
 
         reportBtn.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View v) {
                 String yearSelected = ((Spinner) view.findViewById(R.id.YearSpinnerView)).getSelectedItem().toString();
@@ -147,7 +152,7 @@ public class ReportScreen extends Fragment {
                         // Iterate through all days in the month
                         for (DataSnapshot daySnapshot : snapshot.getChildren()) {
                             // Check if the user's name exists under this day
-                            DataSnapshot userSnapshot = daySnapshot.child(OrganizerScreen.fullName);
+                            DataSnapshot userSnapshot = daySnapshot.child(fullName);
                             if (userSnapshot.exists()) {
                                 // Retrieve startTime and endTime
                                 String startTime = userSnapshot.child("startTime").getValue(String.class);

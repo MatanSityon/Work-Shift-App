@@ -13,7 +13,7 @@ public class CardShift
         this.startTime = startTime;
         this.endTime = endTime;
         this.date = date;
-        this.hours = hours;
+        this.hours = hours + " Hours";
         this.day = day;
     }
 
