@@ -133,10 +133,20 @@ public class OrganizerScreen extends Fragment {
                 googleSignInClient.signOut().addOnSuccessListener(unused -> {
                     mAuth.signOut();
                     googleAccountCredential = null;
+                    mainActivity.setEmailUser(null);
+                    mainActivity.setUserPhoto(null);
+                    mainActivity.setFullName(null);
+                    mainActivity.setGoogleAccountCredential(null);
+                    mainActivity.setGoogleSignInClient(null);
+
                     Toast.makeText(requireContext(), "Signed out from Google account", Toast.LENGTH_SHORT).show();
                     Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
+
                     });
-                }
+
+
+            }
+
         });
 
         syncBtn.setOnClickListener(new View.OnClickListener() {

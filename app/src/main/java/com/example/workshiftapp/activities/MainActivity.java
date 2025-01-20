@@ -40,6 +40,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Collections;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -48,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
     private String emailUser;
     private String fullName;
+
+    private String userPhoto;
+
+
 
     public interface UserNameCallback {
         void onUserNameRetrieved(String fullName);
@@ -68,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                                     if (signInAccount != null) {
                                         fullName = signInAccount.getDisplayName();
                                         emailUser = signInAccount.getEmail();
-                                        String userPhoto = (signInAccount.getPhotoUrl() != null)
+                                        userPhoto = (signInAccount.getPhotoUrl() != null)
                                                 ? signInAccount.getPhotoUrl().toString()
                                                 : "No photo available";
                                     }
@@ -87,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                                                                 Toast.LENGTH_SHORT).show();
 
                                                         // Now that user is signed in, set up the Calendar credential
-                                                        //setupGoogleAccountCredential();
+                                                        setupGoogleAccountCredential();
 
                                                         // Navigate to next screen
                                                         Navigation.findNavController(btn)
@@ -211,6 +217,24 @@ public class MainActivity extends AppCompatActivity {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+    public String getUserPhoto() {
+        return userPhoto;
+    }
+    public void setUserPhoto(String userPhoto) {
+        this.userPhoto = userPhoto;
+    }
+
+    public void setEmailUser(String emailUser) {
+        this.emailUser = emailUser;
+    }
+
+    public void setGoogleSignInClient(GoogleSignInClient googleSignInClient) {
+        this.googleSignInClient = googleSignInClient;
+    }
+
+    public void setmAuth(FirebaseAuth mAuth) {
+        this.mAuth = mAuth;
+    }
     private void getUserName(String email, UserNameCallback callback) {
         String sanitizedEmail = email.replace(".", "_");
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Root");
@@ -226,6 +250,19 @@ public class MainActivity extends AppCompatActivity {
                 callback.onUserNameRetrieved(null);
             }
         });
+    }
+    private void setupGoogleAccountCredential() {
+
+        GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(this);
+        if (signInAccount != null) {
+            googleAccountCredential = GoogleAccountCredential.usingOAuth2(
+                    this,
+                    Collections.singleton("https://www.googleapis.com/auth/calendar")
+            );
+            googleAccountCredential.setSelectedAccount(signInAccount.getAccount());
+
+
+        }
     }
 
 

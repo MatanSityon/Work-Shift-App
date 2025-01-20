@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.workshiftapp.R;
+import com.example.workshiftapp.activities.MainActivity;
 import com.example.workshiftapp.adapters.MessageAdapter;
 import com.example.workshiftapp.models.Message;
 import com.google.firebase.database.DataSnapshot;
@@ -23,8 +24,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,7 +54,10 @@ public class ChatScreen extends Fragment {
     private DatabaseReference groupChatRef;
 
     // Example: Hard-coded username
-    private String username = "AnonymousUser";
+    private String fullName;
+
+    private String userPhoto;
+    MainActivity mainActivity;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -90,6 +97,9 @@ public class ChatScreen extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        mainActivity = (MainActivity) getActivity();
+        fullName = mainActivity.getFullName();
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_chat_screen, container, false);
 
@@ -149,11 +159,25 @@ public class ChatScreen extends Fragment {
         if (msg.isEmpty()) {
             return; // Don't send empty
         }
-
-        Message messageObject = new Message(username, msg, System.currentTimeMillis());
+        //userPhoto = mainActivity.getUserPhoto();
+        Message messageObject = new Message(fullName, msg, getFormattedTime(),mainActivity.getUserPhoto());
         groupChatRef.push().setValue(messageObject);
 
         editTextMessage.setText("");
+    }
+
+    private String getFormattedTime() {
+        long currentTimeMillis = System.currentTimeMillis();
+
+        // Create a SimpleDateFormat instance with your desired format
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        // Set the timezone to the default timezone of the device
+        sdf.setTimeZone(TimeZone.getDefault());
+
+        // Convert to a readable date
+        Date date = new Date(currentTimeMillis);
+        return sdf.format(date);
     }
 }
 
