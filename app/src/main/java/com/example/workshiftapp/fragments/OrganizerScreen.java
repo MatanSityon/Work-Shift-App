@@ -51,10 +51,12 @@ public class OrganizerScreen extends Fragment {
 
     private String emailUser;
     public static String fullName;
+    private boolean isOnShift;
 
 
 
     private MainActivity mainActivity;
+    Button assignShiftBtn;
 
     GoogleSignInClient googleSignInClient;
     GoogleAccountCredential googleAccountCredential;
@@ -87,7 +89,7 @@ public class OrganizerScreen extends Fragment {
         GridLayout workersGrid = view.findViewById(R.id.workers_textbox);
         Button startTimePicker = view.findViewById(R.id.time_picker_start);
         Button endTimePicker = view.findViewById(R.id.time_picker_end);
-        Button assignShiftBtn = view.findViewById(R.id.submit_time_btn);
+        assignShiftBtn = view.findViewById(R.id.submit_time_btn);
         Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
         FloatingActionButton syncBtn = view.findViewById(R.id.SyncGoogleBtn);
 
@@ -104,28 +106,55 @@ public class OrganizerScreen extends Fragment {
         handleDateChange(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH), dateTextView, workersGrid);
 
         // Handle shift assignment
-        assignShiftBtn.setOnClickListener(v -> {
-            String start = startTimePicker.getText().toString();
-            String end = endTimePicker.getText().toString();
-            String selectedDate = dateTextView.getText().toString();
-                if (fullName == null) {
-                    fullName = mainActivity.getFullName();
-                    addShift(selectedDate, start, end, fullName);
-                    refreshDataAfterShiftAssignment(selectedDate,dateTextView,workersGrid); // Refresh UI
+        assignShiftBtn.setOnClickListener(new View.OnClickListener() {
+            //boolean isFirstPurpose = true;
 
+            @Override
+            public void onClick(View view) {
+                if (assignShiftBtn.getText().equals("Shift Me!")) {
+                    // Existing functionality for assigning a shift
+                    String selectedDate = dateTextView.getText().toString();
+                    String start = startTimePicker.getText().toString();
+                    String end = endTimePicker.getText().toString();
 
-                } else
-                {
-                    addShift(selectedDate, start, end, fullName);
-                    refreshDataAfterShiftAssignment(selectedDate,dateTextView,workersGrid); // Refresh UI
+                    if (fullName == null) {
+                        fullName = mainActivity.getFullName();
+                        addShift(selectedDate, start, end, fullName);
+                        refreshDataAfterShiftAssignment(selectedDate, dateTextView, workersGrid); // Refresh UI
+                    } else {
+                        addShift(selectedDate, start, end, fullName);
+                        refreshDataAfterShiftAssignment(selectedDate, dateTextView, workersGrid); // Refresh UI
+                    }
                 }
+                else {
+                    String selectedDate = dateTextView.getText().toString();
+                    if (fullName == null) {
+                        fullName = mainActivity.getFullName();
+                        removeShift(selectedDate, fullName);
+                        refreshDataAfterShiftAssignment(selectedDate, dateTextView, workersGrid); // Refresh UI
+                    }
+                    else {
+                        removeShift(selectedDate, fullName);
+                        refreshDataAfterShiftAssignment(selectedDate, dateTextView, workersGrid); // Refresh UI
+                    }
+                }
+
+                // Toggle the purpose state
+                //isFirstPurpose = !isFirstPurpose;
+            }
         });
+
 
         // Handle Google sign-out
         googleSignOutButton.setOnClickListener(v -> {
             if (googleAccountCredential == null)
             {
                 Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
+                mainActivity.setEmailUser(null);
+                mainActivity.setUserPhoto(null);
+                mainActivity.setFullName(null);
+                mainActivity.setGoogleAccountCredential(null);
+                mainActivity.setGoogleSignInClient(null);
                 Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
             }
             else
@@ -175,6 +204,7 @@ public class OrganizerScreen extends Fragment {
         String sMonth = String.valueOf(month + 1); // Months are zero-based
         String sDay = String.valueOf(dayOfMonth);
 
+
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
                 .child("Calendar")
@@ -185,12 +215,17 @@ public class OrganizerScreen extends Fragment {
         myRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 DataSnapshot snapshot = task.getResult();
+               isOnShift = false;
 
                 if (snapshot.exists()) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                         String name = userSnapshot.child("worker").getValue(String.class);
                         String startTime = userSnapshot.child("startTime").getValue(String.class);
                         String endTime = userSnapshot.child("endTime").getValue(String.class);
+                        if(name.equals(fullName))
+                        {
+                            isOnShift = true;
+                        }
 
                         if (name != null && startTime != null && endTime != null) {
                             LinearLayout workerLayout = new LinearLayout(getActivity());
@@ -213,6 +248,7 @@ public class OrganizerScreen extends Fragment {
                             workersGrid.addView(workerLayout);
                         }
                     }
+
                 } else {
                     TextView noDataTextView = new TextView(getActivity());
                     noDataTextView.setText("No one is working today! Schedule your shift!");
@@ -220,6 +256,15 @@ public class OrganizerScreen extends Fragment {
                 }
             } else {
                 Toast.makeText(getActivity(), "Failed to fetch data: " + task.getException(), Toast.LENGTH_SHORT).show();
+            }
+            if (isOnShift) {
+                assignShiftBtn.setText("Unshift Me!");
+                assignShiftBtn.setBackgroundResource(R.drawable.unshiftme_back);
+            }
+            else
+            {
+                assignShiftBtn.setText("Shift Me!");
+                assignShiftBtn.setBackgroundResource(R.drawable.login_button);
             }
         });
     }
@@ -263,10 +308,51 @@ public class OrganizerScreen extends Fragment {
                 .child(month)
                 .child(day)
                 .child(name);
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+        try {
+            // Parse the times into Date objects
+            Date startDate = sdf.parse(start);
+            Date endDate = sdf.parse(end);
 
-        Shift shift = new Shift(name, start, end);
-        myRef.setValue(shift);
+            // Compare the times
+            if (startDate.before(endDate)) {
+                Shift shift = new Shift(name, start, end);
+                myRef.setValue(shift);
+            } else {
+                Toast.makeText(requireContext(), "Start time Should be before end time", Toast.LENGTH_SHORT).show();
+
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            System.out.println("Invalid time format.");
+        }
+
         //addEventToCalendar(year,month,day,start,end); ///////nivs calendar add event
+    }
+
+    private void removeShift(String date, String name){
+        String sanitizedDate = date.substring(date.indexOf("\n") + 1);
+        String[] dateParts = sanitizedDate.split("/");
+        String day = dateParts[0];
+        String month = dateParts[1];
+        String year = dateParts[2];
+
+        DatabaseReference myRef = FirebaseDatabase.getInstance()
+                .getReference("Root")
+                .child("Calendar")
+                .child(year)
+                .child(month)
+                .child(day)
+                .child(name);
+        // To delete the data at this reference
+        myRef.removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(requireContext(), "Data deleted successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Failed to delete data", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
