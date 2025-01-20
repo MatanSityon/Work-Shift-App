@@ -52,7 +52,7 @@ public class OrganizerScreen extends Fragment {
     private String emailUser;
     public static String fullName;
     private boolean isOnShift;
-
+    private double wage;
     private MainActivity mainActivity;
     Button assignShiftBtn;
 

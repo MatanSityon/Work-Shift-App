@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
 import com.example.workshiftapp.adapters.ShiftAdapter;
 import com.example.workshiftapp.models.CardShift;
+import com.example.workshiftapp.models.Shift;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,11 +48,11 @@ public class ReportScreen extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     private MainActivity mainActivity;
-    //private FragmentActivity organizerScreen;
-
     private String fullName;
+    private double wage;
+    private double totalSalary;
+    private double totalMonthHours;
 
     public ReportScreen() {
         // Required empty public constructor
@@ -89,6 +92,7 @@ public class ReportScreen extends Fragment {
         View view =  inflater.inflate(R.layout.fragment_report_screen, container, false);
         mainActivity = (MainActivity) getActivity();
         fullName = mainActivity.getFullName();
+        wage =mainActivity.getWage();
         String[] monthSpinnerArray = new String[] {
                 "1", "2", "3", "4", "5", "6", "7","8","9","10","11","12"
         };
@@ -121,6 +125,7 @@ public class ReportScreen extends Fragment {
        // recyclerView.setLayoutManager(layoutManager);
        // recyclerView.setItemAnimator(new DefaultItemAnimator());
         RecyclerView recyclerView = view.findViewById(R.id.rvcon);
+        TextView salaryTextView =view.findViewById(R.id.TotalSalaryTextView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         ArrayList<CardShift> arr = new ArrayList<>();
         ShiftAdapter shiftAdapter = new ShiftAdapter(arr);
@@ -160,8 +165,8 @@ public class ReportScreen extends Fragment {
 
                                 if (startTime != null && endTime != null) {
                                     // Calculate total hours worked
-                                    int totalHours = calculateHoursWorked(startTime, endTime);
-
+                                    double totalHours = calculateHoursWorked(startTime, endTime);
+                                    totalMonthHours+=totalHours;
                                     // Get the date and day of the week
                                     String dayKey = daySnapshot.getKey(); // The day of the month
                                     String date = dayKey + "/" + monthSelected;
@@ -178,11 +183,11 @@ public class ReportScreen extends Fragment {
 
                         // Debug: Log the results
                         Log.d("RecyclerView", "Data size: " + arr.size());
-
                         // Notify the adapter that the data has changed
                         shiftAdapter.notifyDataSetChanged();
+                        totalSalary= Math.round(totalMonthHours*wage* 100.0)/100.0;
+                        salaryTextView.setText("Total salary: " + String.valueOf(totalSalary)+ "₪");
                     }
-
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
                         Log.e("FirebaseError", "Failed to fetch data: " + error.getMessage());
@@ -190,24 +195,37 @@ public class ReportScreen extends Fragment {
                 });
             }
         });
+
+
+
         return view;
 
     }
-    private int calculateHoursWorked(String startTime, String endTime) {
+    private double calculateHoursWorked(String startTime, String endTime) {
         SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
         try {
             Date start = timeFormat.parse(startTime);
             Date end = timeFormat.parse(endTime);
 
             if (start != null && end != null) {
+                if (end.before(start)) {
+                    // Add 24 hours to the end time to handle overnight shifts
+                    end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
+                }
+
                 long differenceInMillis = end.getTime() - start.getTime();
-                return (int) (differenceInMillis / (1000 * 60 * 60)); // Convert to hours
+                double hours = differenceInMillis / (1000.0 * 60 * 60); // Convert to hours as a double
+
+                // Format to 2 decimal places
+                return Math.round(hours * 100.0) / 100.0;
             }
         } catch (ParseException e) {
             e.printStackTrace();
         }
         return 0; // Return 0 if parsing fails
     }
+
+
 
     private String getDayOfWeek(String year, String month, String day) {
         Calendar calendar = Calendar.getInstance();

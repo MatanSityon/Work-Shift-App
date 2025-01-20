@@ -19,7 +19,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.Navigation;
 
 import com.example.workshiftapp.R;
-import com.example.workshiftapp.fragments.OrganizerScreen;
 import com.example.workshiftapp.models.Worker;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -52,13 +51,15 @@ public class MainActivity extends AppCompatActivity {
     private String fullName;
 
     private String userPhoto;
-
-
+    private boolean userExists;
+    private double wage;
 
     public interface UserNameCallback {
         void onUserNameRetrieved(String fullName);
     }
-
+    public interface wageCallback{
+        void onWageRetrieved(double wage);
+    }
 
     // ActivityResultLauncher to handle sign-in result
     private final ActivityResultLauncher<Intent> activityResultLauncher =
@@ -94,10 +95,19 @@ public class MainActivity extends AppCompatActivity {
 
                                                         // Now that user is signed in, set up the Calendar credential
                                                         setupGoogleAccountCredential();
+                                                        initWage(new wageCallback() {
+                                                            @Override
+                                                            public void onWageRetrieved(double wageuser) {
+                                                                wage = wageuser;
 
+                                                                // Now that the wage is retrieved, navigate
+                                                                // Proceed to the next screen only after wage retrieval
+                                                                Navigation.findNavController(btn)
+                                                                        .navigate(R.id.action_loginScreen_to_generalAppScreen);
+                                                            }
+                                                        });
                                                         // Navigate to next screen
-                                                        Navigation.findNavController(btn)
-                                                                .navigate(R.id.action_loginScreen_to_generalAppScreen);
+
                                                     } else {
                                                         Toast.makeText(MainActivity.this,
                                                                 "Failed to sign in: " + task.getException(),
@@ -125,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
         // Initialize Firebase
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
-
     }
 
     // Method to start Google Sign-In (called from Fragment, presumably)
@@ -149,18 +158,29 @@ public class MainActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        emailUser = email;
                         if (task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "login ok", Toast.LENGTH_LONG).show();
-                            emailUser = email;
-                            if (fullName == null) {
-                                getUserName(emailUser, name -> {
-                                    if (name != null)
-                                    {
-                                        fullName = name;
+                            initWage(new wageCallback() {
+                                @Override
+                                public void onWageRetrieved(double wageuser) {
+                                    // Handle the retrieved wage here
+                                    wage = wageuser;
+
+                                    // Proceed with setting fullName if not set yet
+                                    if (fullName == null) {
+                                        getUserName(emailUser, name -> {
+                                            if (name != null) {
+                                                fullName = name;
+                                            }
+                                            // After fullName and wage are set, navigate
+                                            Navigation.findNavController(v).navigate(R.id.action_loginScreen_to_generalAppScreen);
+                                        });
+                                    } else {
+                                        // If fullName is already set, navigate directly
+                                        Navigation.findNavController(v).navigate(R.id.action_loginScreen_to_generalAppScreen);
                                     }
-                                });
-                            }
-                            Navigation.findNavController(v).navigate(R.id.action_loginScreen_to_generalAppScreen);
+                                }
+                            });
                         } else {
                             Toast.makeText(MainActivity.this, "login fail", Toast.LENGTH_LONG).show();
                         }
@@ -177,10 +197,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "register ok", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "register completed", Toast.LENGTH_LONG).show();
                             addData(email, fullName);
+                            userExists =false;
                         } else {
-                            Toast.makeText(MainActivity.this, "register fail", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Email already exists", Toast.LENGTH_LONG).show();
+                            userExists=true;
                         }
                     }
                 });
@@ -204,12 +226,52 @@ public class MainActivity extends AppCompatActivity {
     public void setGetGoogleSignInClient(GoogleSignInClient getGoogleSignInClient) {
         this.googleSignInClient = getGoogleSignInClient;
     }
+    public void initWage(wageCallback callback) {
+        String sanitizedEmail = emailUser.replace(".", "_");
+        DatabaseReference myRef = FirebaseDatabase.getInstance()
+                .getReference("Root")
+                .child("Users")
+                .child(sanitizedEmail)
+                .child("wage");
 
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && snapshot.getValue() != null) {
+                    // Retrieve wage value
+                    Double currWage = snapshot.getValue(Double.class);
+                    if (currWage != null) {
+                        callback.onWageRetrieved(currWage); // Pass retrieved wage to callback
+                    } else {
+                        Log.e("Firebase", "Wage value is null!");
+                    }
+                } else {
+                    callback.onWageRetrieved(0.0); // Pass retrieved wage to callback
+
+                    Log.e("Firebase", "Snapshot does not exist or is empty!");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Failed to read value: " + error.getMessage());
+            }
+        });
+    }
+    public double getWage(){
+        return this.wage;
+    }
+    public void setWage(double wage) {
+        this.wage = wage;
+    }
     public void setGoogleAccountCredential(GoogleAccountCredential googleAccountCredential) {
         this.googleAccountCredential = googleAccountCredential;
     }
     public String getEmailUser() {
         return emailUser;
+    }
+    public boolean getuserExists(){
+        return userExists;
     }
     public String getFullName() {
         return fullName;

@@ -2,13 +2,16 @@ package com.example.workshiftapp.fragments;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.workshiftapp.R;
@@ -16,6 +19,11 @@ import com.example.workshiftapp.activities.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,8 +42,12 @@ public class SettingsScreen extends Fragment {
     private String mParam1;
     private String mParam2;
     private MainActivity mainActivity;
-    GoogleSignInClient googleSignInClient;
-    GoogleAccountCredential googleAccountCredential;
+    private GoogleSignInClient googleSignInClient;
+    private GoogleAccountCredential googleAccountCredential;
+    private String email;
+    private String sanitizedEmail;
+    private EditText wageInput;
+    DatabaseReference myRef;
 
 
     public SettingsScreen() {
@@ -73,16 +85,33 @@ public class SettingsScreen extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mainActivity= (MainActivity) getActivity();
-
+        email = mainActivity.getEmailUser();
+        sanitizedEmail = email.replace(".", "_");
         View view = inflater.inflate(R.layout.fragment_settings_screen, container, false);
         Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
+        Button setWageButton = view.findViewById(R.id.setWageBtn);
+        wageInput = view.findViewById(R.id.wageInput);
+        myRef = FirebaseDatabase.getInstance()
+                .getReference("Root")
+                .child("Users")
+                .child(sanitizedEmail);
+        initWageText();
+
+        setWageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setWage();
+            }
+        });
+
+
+
+
         if (mainActivity != null)
         {
             googleAccountCredential = mainActivity.getGoogleAccountCredential();
             googleSignInClient = mainActivity.getGetGoogleSignInClient();
         }
-
-
         // Handle Google sign-out
         googleSignOutButton.setOnClickListener(v -> {
             if (googleAccountCredential == null)
@@ -115,4 +144,48 @@ public class SettingsScreen extends Fragment {
         });
         return view;
     }
+
+    private void setWage(){
+        double wage =Double.parseDouble(wageInput.getText().toString());
+        String key = "wage"; // The key for the variable
+        double value = wage; // The value to store
+
+        myRef.child(key).setValue(value)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        mainActivity.setWage(value);
+                        Toast.makeText(requireContext(), "Wage updated", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), "Unable Wage updated", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void initWageText()
+    {
+        myRef.child("wage");
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && snapshot.getValue() != null) {
+                    Double currWage = snapshot.child("wage").getValue(Double.class); // Safe retrieval
+                    if (currWage != null) {
+                        wageInput.setText(String.valueOf(currWage));
+                        mainActivity.setWage(currWage);
+
+                    } else {
+                        Log.e("Firebase", "Wage value is null!");
+                    }
+                } else {
+                    Log.e("Firebase", "Snapshot does not exist or is empty!");
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Failed to read value: " + error.getMessage());
+            }
+        });
+    }
+
+
+
 }

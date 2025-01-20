@@ -86,11 +86,11 @@ public class RegistrationScreen extends Fragment {
                     if(regPass.equals(regRePass)) {
                         if(EmailValidator.isValidEmail(regEmail)) {
                             if(regPass.length()>=6) {
-                                Toast.makeText(requireContext(), "Registration completed", Toast.LENGTH_SHORT).show();
-                                Navigation.findNavController(view).navigate(R.id.action_registrationScreen_to_loginScreen);
                                 MainActivity mainActivity = (MainActivity) getActivity();
                                 mainActivity.register();
-                                //mainActivity.addData(); ///for realtime
+                                if (mainActivity.getuserExists()==true) {
+                                    Navigation.findNavController(view).navigate(R.id.action_registrationScreen_to_loginScreen);
+                                }
                             }
                             else {
                                 Toast.makeText(requireContext(), "Password should be at least 6 characters", Toast.LENGTH_SHORT).show();
