@@ -11,7 +11,7 @@
     <androidx.cardview.widget.CardView
         style="@style/loginCard"
         android:layout_width="350dp"
-        android:layout_height="500dp"
+        android:layout_height="530dp"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/loginViewsMargin"
         android:layout_marginBottom="@dimen/loginViewsMargin"
@@ -89,6 +89,20 @@
                     tools:ignore="TouchTargetSizeCheck" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textCalendarID"
+                style="@style/parent"
+                android:layout_marginTop="@dimen/loginViewsMargin">
+
+                <EditText
+                    android:id="@+id/reg_CalendarID"
+                    style="@style/modifiedEditText"
+                    android:hint="Enter Calendar ID"
+                    android:inputType="number|numberDecimal"
+                    android:maxLines="1"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!--<TextView
                 style="@style/viewParent"
                 android:text="Forgot Password?"
@@ -109,13 +123,13 @@
 
             <Button
                 android:id="@+id/BackToLoginBtn"
-                android:background="@android:color/transparent"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="5dp"
-                android:textColor="#00a5ff"
-                android:text="Log in" />
+                android:background="@android:color/transparent"
+                android:text="Log in"
+                android:textColor="#00a5ff" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

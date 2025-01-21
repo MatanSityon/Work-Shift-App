@@ -1,9 +1,12 @@
 package com.example.workshiftapp.activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -50,9 +53,12 @@ public class MainActivity extends AppCompatActivity {
     private String emailUser;
     private String fullName;
 
+    private String calendarID;
+
     private String userPhoto;
     private boolean userExists;
     private double wage;
+
 
     public interface UserNameCallback {
         void onUserNameRetrieved(String fullName);
@@ -60,6 +66,10 @@ public class MainActivity extends AppCompatActivity {
     public interface wageCallback{
         void onWageRetrieved(double wage);
     }
+    public interface calendarIDCallback{
+        void onCalendarIDRetrieved(String calendarID);
+    }
+
 
     // ActivityResultLauncher to handle sign-in result
     private final ActivityResultLauncher<Intent> activityResultLauncher =
@@ -99,13 +109,20 @@ public class MainActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onWageRetrieved(double wageuser) {
                                                                 wage = wageuser;
-
-                                                                // Now that the wage is retrieved, navigate
-                                                                // Proceed to the next screen only after wage retrieval
+                                                            }
+                                                        });
+                                                        initCalendarID(new calendarIDCallback(){
+                                                            @Override
+                                                            public void onCalendarIDRetrieved(String calendarIDUser) {
+                                                                calendarID = calendarIDUser;
                                                                 Navigation.findNavController(btn)
                                                                         .navigate(R.id.action_loginScreen_to_generalAppScreen);
                                                             }
                                                         });
+                                                        if (calendarID == null)
+                                                            showPopupDialog();
+
+
                                                         // Navigate to next screen
 
                                                     } else {
@@ -166,6 +183,12 @@ public class MainActivity extends AppCompatActivity {
                                     // Handle the retrieved wage here
                                     wage = wageuser;
 
+                                }
+                            });
+                            initCalendarID(new calendarIDCallback(){
+                                @Override
+                                public void onCalendarIDRetrieved(String calendarIDUser) {
+                                    calendarID = calendarIDUser;
                                     // Proceed with setting fullName if not set yet
                                     if (fullName == null) {
                                         getUserName(emailUser, name -> {
@@ -179,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
                                         // If fullName is already set, navigate directly
                                         Navigation.findNavController(v).navigate(R.id.action_loginScreen_to_generalAppScreen);
                                     }
+
                                 }
                             });
                         } else {
@@ -192,13 +216,14 @@ public class MainActivity extends AppCompatActivity {
         String email = ((EditText) findViewById(R.id.reg_TextEmail)).getText().toString();
         String password = ((EditText) findViewById(R.id.reg_TextPassword)).getText().toString();
         String fullName = ((EditText) findViewById(R.id.reg_FullName)).getText().toString();
+        String calendarID = ((EditText) findViewById(R.id.reg_CalendarID)).getText().toString();
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(MainActivity.this, "register completed", Toast.LENGTH_LONG).show();
-                            addData(email, fullName);
+                            addData(email, fullName,calendarID);
                             userExists =false;
                         } else {
                             Toast.makeText(MainActivity.this, "Email already exists", Toast.LENGTH_LONG).show();
@@ -208,11 +233,11 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void addData(String email, String fullName) {
+    public void addData(String email, String fullName,String calendarID) {
         String sanitizedEmail = email.replace(".", "_");
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Root").child("Users").child(sanitizedEmail);
-        Worker worker = new Worker(email, fullName);
+        Worker worker = new Worker(email, fullName,calendarID);
         myRef.setValue(worker);
     }
 
@@ -248,6 +273,37 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     callback.onWageRetrieved(0.0); // Pass retrieved wage to callback
 
+                    Log.e("Firebase", "Snapshot does not exist or is empty!");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Failed to read value: " + error.getMessage());
+            }
+        });
+    }
+    public void initCalendarID(calendarIDCallback callback) {
+        String sanitizedEmail = emailUser.replace(".", "_");
+        DatabaseReference myRef = FirebaseDatabase.getInstance()
+                .getReference("Root")
+                .child("Users")
+                .child(sanitizedEmail);
+
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists() && snapshot.getValue() != null) {
+                    // Retrieve wage value
+                    String calendarIDSnap = snapshot.child("calendarID").getValue(String.class);
+                    if (calendarIDSnap != null) {
+                        callback.onCalendarIDRetrieved(calendarIDSnap);
+                    } else {
+                        Log.e("Firebase", "Wage value is null!");
+                    }
+                } else {
+                    /////Need to implement for google new users
+                    showPopupDialog();
                     Log.e("Firebase", "Snapshot does not exist or is empty!");
                 }
             }
@@ -326,6 +382,45 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
+    }
+    public String getCalendarID() {
+        return calendarID;
+    }
+
+    public void setCalendarID(String calendarID) {
+        this.calendarID = calendarID;
+    }
+
+    private void showPopupDialog() {
+        // Inflate the custom layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View popupView = inflater.inflate(R.layout.insert_id_dialog, null);
+
+        // Initialize UI elements in the popup
+        EditText inputField = popupView.findViewById(R.id.inputField);
+        Button submitButton = popupView.findViewById(R.id.submitButton);
+
+        // Build the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(popupView);
+        builder.setCancelable(false); // Prevent dismissal without action
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Handle the submit button
+        submitButton.setOnClickListener(v -> {
+            String input = inputField.getText().toString().trim();
+            if (input.isEmpty()) {
+
+                Toast.makeText(this, "Please fill in the required data", Toast.LENGTH_SHORT).show();
+            } else {
+                // Close the dialog only when data is valid
+                setCalendarID(input);
+                //Toast.makeText(this, "Data submitted: " + input, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
     }
 
 

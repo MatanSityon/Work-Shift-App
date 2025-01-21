@@ -45,6 +45,7 @@ public class SettingsScreen extends Fragment {
     private GoogleSignInClient googleSignInClient;
     private GoogleAccountCredential googleAccountCredential;
     private String email;
+    private String calendarID;
     private String sanitizedEmail;
     private EditText wageInput;
     DatabaseReference myRef;
@@ -86,6 +87,7 @@ public class SettingsScreen extends Fragment {
                              Bundle savedInstanceState) {
         mainActivity= (MainActivity) getActivity();
         email = mainActivity.getEmailUser();
+        calendarID = mainActivity.getCalendarID();
         sanitizedEmail = email.replace(".", "_");
         View view = inflater.inflate(R.layout.fragment_settings_screen, container, false);
         Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
@@ -93,6 +95,7 @@ public class SettingsScreen extends Fragment {
         wageInput = view.findViewById(R.id.wageInput);
         myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
+                .child(calendarID)
                 .child("Users")
                 .child(sanitizedEmail);
         initWageText();

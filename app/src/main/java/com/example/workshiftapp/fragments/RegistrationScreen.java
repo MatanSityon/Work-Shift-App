@@ -78,19 +78,22 @@ public class RegistrationScreen extends Fragment {
                 EditText regPassEditText = view.findViewById(R.id.reg_TextPassword);
                 EditText regRePassEditText = view.findViewById(R.id.reg_ReEnterPassword);
                 EditText regFullNameEditText = view.findViewById(R.id.reg_FullName);
+                EditText regCalendarIDText= view.findViewById(R.id.reg_CalendarID);
+                String regCalendarID = regCalendarIDText.getText().toString();
                 String regEmail = regEmailEditText.getText().toString();
                 String regPass = regPassEditText.getText().toString();
                 String regRePass = regRePassEditText.getText().toString();
                 String regFullName = regFullNameEditText.getText().toString();
-                if (!(regEmail.isEmpty() && regPass.isEmpty() && regRePass.isEmpty() && regFullName.isEmpty())){
+                if (!(regEmail.isEmpty() && regPass.isEmpty() && regRePass.isEmpty() && regFullName.isEmpty()&& regCalendarID.isEmpty())){
                     if(regPass.equals(regRePass)) {
                         if(EmailValidator.isValidEmail(regEmail)) {
                             if(regPass.length()>=6) {
                                 MainActivity mainActivity = (MainActivity) getActivity();
                                 mainActivity.register();
-                                if (mainActivity.getuserExists()==true) {
+                                if (!mainActivity.getuserExists()) {
                                     Navigation.findNavController(view).navigate(R.id.action_registrationScreen_to_loginScreen);
                                 }
+
                             }
                             else {
                                 Toast.makeText(requireContext(), "Password should be at least 6 characters", Toast.LENGTH_SHORT).show();

@@ -4,9 +4,14 @@ public class Worker {
     private String email;
     private String fullName;
     private double wage;
-    public Worker(String email, String fullName) {
+
+    private String calendarID;
+
+
+    public Worker(String email, String fullName, String calendarID) {
         this.email = email;
         this.fullName = fullName;
+        this.calendarID = calendarID;
     }
 
     public double getWage() {
@@ -31,5 +36,12 @@ public class Worker {
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+    public String getCalendarID() {
+        return calendarID;
+    }
+
+    public void setCalendarID(String calendarID) {
+        this.calendarID = calendarID;
     }
 }

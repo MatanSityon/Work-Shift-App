@@ -53,6 +53,7 @@ public class OrganizerScreen extends Fragment {
     public static String fullName;
     private boolean isOnShift;
     private double wage;
+    private String calendarID;
     private MainActivity mainActivity;
     Button assignShiftBtn;
 
@@ -78,6 +79,7 @@ public class OrganizerScreen extends Fragment {
             googleSignInClient = mainActivity.getGetGoogleSignInClient();
             emailUser = mainActivity.getEmailUser();
             fullName = mainActivity.getFullName();
+            calendarID = mainActivity.getCalendarID();
         }
 
 
@@ -169,6 +171,7 @@ public class OrganizerScreen extends Fragment {
 
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
+                .child(calendarID)
                 .child("Calendar")
                 .child(sYear)
                 .child(sMonth)
@@ -265,6 +268,7 @@ public class OrganizerScreen extends Fragment {
 
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
+                .child(calendarID)
                 .child("Calendar")
                 .child(year)
                 .child(month)
@@ -302,6 +306,7 @@ public class OrganizerScreen extends Fragment {
 
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
+                .child(calendarID)
                 .child("Calendar")
                 .child(year)
                 .child(month)
@@ -357,6 +362,7 @@ public class OrganizerScreen extends Fragment {
             // Start from the root reference of the calendar
             DatabaseReference calendarRef = FirebaseDatabase.getInstance()
                     .getReference("Root")
+                    .child(calendarID)
                     .child("Calendar");
 
             calendarRef.addListenerForSingleValueEvent(new ValueEventListener() {

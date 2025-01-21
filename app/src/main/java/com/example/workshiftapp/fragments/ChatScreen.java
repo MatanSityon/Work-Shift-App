@@ -56,6 +56,8 @@ public class ChatScreen extends Fragment {
     // Example: Hard-coded username
     private String fullName;
 
+    private String calendarID;
+
     private String userPhoto;
     MainActivity mainActivity;
 
@@ -99,6 +101,7 @@ public class ChatScreen extends Fragment {
                              Bundle savedInstanceState) {
         mainActivity = (MainActivity) getActivity();
         fullName = mainActivity.getFullName();
+        calendarID = mainActivity.getCalendarID();
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_chat_screen, container, false);
@@ -117,7 +120,7 @@ public class ChatScreen extends Fragment {
         // Initialize Firebase
         firebaseDatabase = FirebaseDatabase.getInstance();
         // All messages will go under "group_chat"
-        groupChatRef = firebaseDatabase.getReference("Root").child("group_chat");
+        groupChatRef = firebaseDatabase.getReference("Root").child(calendarID).child("group_chat");
 
         // Load existing messages and listen for new ones
         loadMessages();

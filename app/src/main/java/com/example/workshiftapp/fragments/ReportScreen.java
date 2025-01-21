@@ -52,6 +52,7 @@ public class ReportScreen extends Fragment {
     private String fullName;
     private double wage;
     private double totalSalary;
+    private String calendarID;
     private double totalMonthHours;
 
     public ReportScreen() {
@@ -93,6 +94,7 @@ public class ReportScreen extends Fragment {
         mainActivity = (MainActivity) getActivity();
         fullName = mainActivity.getFullName();
         wage =mainActivity.getWage();
+        calendarID = mainActivity.getCalendarID();
         String[] monthSpinnerArray = new String[] {
                 "1", "2", "3", "4", "5", "6", "7","8","9","10","11","12"
         };
@@ -145,6 +147,7 @@ public class ReportScreen extends Fragment {
 
                 DatabaseReference monthRef = FirebaseDatabase.getInstance()
                         .getReference("Root")
+                        .child(calendarID)
                         .child("Calendar")
                         .child(yearSelected)
                         .child(monthSelected);
