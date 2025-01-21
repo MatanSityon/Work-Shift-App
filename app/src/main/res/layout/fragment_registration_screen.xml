@@ -11,7 +11,7 @@
     <androidx.cardview.widget.CardView
         style="@style/loginCard"
         android:layout_width="350dp"
-        android:layout_height="530dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="@dimen/loginViewsMargin"
         android:layout_marginBottom="@dimen/loginViewsMargin"
@@ -22,7 +22,7 @@
         <LinearLayout
             style="@style/linearParent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
             android:padding="@dimen/loginViewsMargin">
@@ -33,6 +33,7 @@
                 android:layout_marginTop="@dimen/loginViewsMargin"
                 android:text="Register" />
 
+            <!-- Full Name Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textFullName"
                 style="@style/parent"
@@ -42,11 +43,20 @@
                     android:id="@+id/reg_FullName"
                     style="@style/modifiedEditText"
                     android:hint="Full Name"
-                    android:inputType="textEmailAddress"
+                    android:inputType="text"
                     android:maxLines="1"
                     tools:ignore="TouchTargetSizeCheck" />
             </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/errorFullName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#FF0000"
+                android:visibility="gone"
+                android:text="This field is required" />
 
+            <!-- Email Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputEmail"
                 style="@style/parent"
@@ -60,7 +70,16 @@
                     android:maxLines="1"
                     tools:ignore="TouchTargetSizeCheck" />
             </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/errorEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#FF0000"
+                android:visibility="gone"
+                android:text="Invalid email format" />
 
+            <!-- Password Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputPassword"
                 style="@style/parent"
@@ -74,7 +93,16 @@
                     android:maxLines="1"
                     tools:ignore="TouchTargetSizeCheck" />
             </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/errorPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#FF0000"
+                android:visibility="gone"
+                android:text="Password must be at least 6 characters" />
 
+            <!-- Re-enter Password Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textReEnterPassword"
                 style="@style/parent"
@@ -88,7 +116,16 @@
                     android:maxLines="1"
                     tools:ignore="TouchTargetSizeCheck" />
             </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/errorRePassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#FF0000"
+                android:visibility="gone"
+                android:text="Passwords do not match" />
 
+            <!-- Calendar ID Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textCalendarID"
                 style="@style/parent"
@@ -102,16 +139,16 @@
                     android:maxLines="1"
                     tools:ignore="TouchTargetSizeCheck" />
             </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/errorCalendarID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#FF0000"
+                android:visibility="gone"
+                android:text="Calendar ID is required" />
 
-            <!--<TextView
-                style="@style/viewParent"
-                android:text="Forgot Password?"
-                android:textColor="@color/primaryTextColor"
-                android:textSize="@dimen/newsMoreTextSize"
-                android:layout_gravity="end"
-                android:onClick="viewForgotPassword"
-                android:layout_marginTop="10dp"/>-->
-
+            <!-- Register Button -->
             <Button
                 android:id="@+id/cirRegButton"
                 style="@style/loginButton"
@@ -121,6 +158,7 @@
                 android:background="@drawable/login_button"
                 android:text="Register" />
 
+            <!-- Back to Login Button -->
             <Button
                 android:id="@+id/BackToLoginBtn"
                 android:layout_width="150dp"
@@ -130,7 +168,6 @@
                 android:background="@android:color/transparent"
                 android:text="Log in"
                 android:textColor="#00a5ff" />
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>
