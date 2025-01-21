@@ -99,9 +99,7 @@ public class MainActivity extends AppCompatActivity {
                                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                                     if (task.isSuccessful()) {
                                                         mAuth = FirebaseAuth.getInstance();
-                                                        Toast.makeText(MainActivity.this,
-                                                                "Signed in successfully!",
-                                                                Toast.LENGTH_SHORT).show();
+
 
                                                         // Now that user is signed in, set up the Calendar credential
                                                         setupGoogleAccountCredential();
@@ -115,15 +113,14 @@ public class MainActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onCalendarIDRetrieved(String calendarIDUser) {
                                                                 calendarID = calendarIDUser;
+                                                                Toast.makeText(MainActivity.this,
+                                                                        "Signed in successfully!",
+                                                                        Toast.LENGTH_SHORT).show();
                                                                 Navigation.findNavController(btn)
                                                                         .navigate(R.id.action_loginScreen_to_generalAppScreen);
                                                             }
-                                                        });
-                                                        if (calendarID == null)
-                                                            showPopupDialog();
-
-
-                                                        // Navigate to next screen
+                                                        },btn);
+                                                            //showPopupDialog(btn);
 
                                                     } else {
                                                         Toast.makeText(MainActivity.this,
@@ -204,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                 }
-                            });
+                            },v);
                         } else {
                             Toast.makeText(MainActivity.this, "login fail", Toast.LENGTH_LONG).show();
                         }
@@ -283,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    public void initCalendarID(calendarIDCallback callback) {
+    public void initCalendarID(calendarIDCallback callback, View triggerView) {
         String sanitizedEmail = emailUser.replace(".", "_");
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
@@ -293,27 +290,25 @@ public class MainActivity extends AppCompatActivity {
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists() && snapshot.getValue() != null) {
-                    // Retrieve wage value
+                if (snapshot.exists() && snapshot.hasChild("calendarID")) {
                     String calendarIDSnap = snapshot.child("calendarID").getValue(String.class);
-                    if (calendarIDSnap != null) {
-                        callback.onCalendarIDRetrieved(calendarIDSnap);
+                    if (calendarIDSnap != null && !calendarIDSnap.trim().isEmpty()) {
+                        callback.onCalendarIDRetrieved(calendarIDSnap); // Calendar ID exists
                     } else {
-                        Log.e("Firebase", "Wage value is null!");
+                        showPopupDialog(triggerView); // Calendar ID is invalid or empty
                     }
                 } else {
-                    /////Need to implement for google new users
-                    showPopupDialog();
-                    Log.e("Firebase", "Snapshot does not exist or is empty!");
+                    showPopupDialog(triggerView); // Calendar ID doesn't exist
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Firebase", "Failed to read value: " + error.getMessage());
+                Log.e("Firebase", "Failed to read calendarID: " + error.getMessage());
             }
         });
     }
+
     public double getWage(){
         return this.wage;
     }
@@ -391,37 +386,47 @@ public class MainActivity extends AppCompatActivity {
         this.calendarID = calendarID;
     }
 
-    private void showPopupDialog() {
+    private void showPopupDialog(View triggerView) {
         // Inflate the custom layout
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View popupView = inflater.inflate(R.layout.insert_id_dialog, null);
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View popupView = inflater.inflate(R.layout.insert_id_dialog, null);
 
-        // Initialize UI elements in the popup
-        EditText inputField = popupView.findViewById(R.id.inputField);
-        Button submitButton = popupView.findViewById(R.id.submitButton);
+            // Initialize UI elements in the popup
+            EditText inputField = popupView.findViewById(R.id.inputField);
+            Button submitButton = popupView.findViewById(R.id.submitButton);
 
-        // Build the dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(popupView);
-        builder.setCancelable(false); // Prevent dismissal without action
+            // Build the dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(popupView);
+            builder.setCancelable(false); // Prevent dismissal without action
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+            AlertDialog dialog = builder.create();
+            dialog.show();
 
-        // Handle the submit button
-        submitButton.setOnClickListener(v -> {
-            String input = inputField.getText().toString().trim();
-            if (input.isEmpty()) {
+            // Handle the submit button
+            submitButton.setOnClickListener(v -> {
+                String input = inputField.getText().toString().trim();
+                if (input.isEmpty()) {
 
-                Toast.makeText(this, "Please fill in the required data", Toast.LENGTH_SHORT).show();
-            } else {
-                // Close the dialog only when data is valid
-                setCalendarID(input);
-                //Toast.makeText(this, "Data submitted: " + input, Toast.LENGTH_SHORT).show();
-                dialog.dismiss();
-            }
-        });
+                    Toast.makeText(this, "Please fill in the required data", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Close the dialog only when data is valid
+                    setCalendarID(input);
+                    //Toast.makeText(this, "Data submitted: " + input, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+
+                    if (calendarID != null) {
+                        Navigation.findNavController(triggerView)
+                                .navigate(R.id.action_loginScreen_to_generalAppScreen);
+                        Toast.makeText(MainActivity.this,
+                                "Signed in successfully!",
+                                Toast.LENGTH_SHORT).show();
+                        addData(emailUser, fullName, calendarID);
+                    }
+                }
+            });
     }
+
 
 
 }

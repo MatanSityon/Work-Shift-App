@@ -48,6 +48,7 @@ public class SettingsScreen extends Fragment {
     private String calendarID;
     private String sanitizedEmail;
     private EditText wageInput;
+    private EditText calendarIDInputText;
     DatabaseReference myRef;
 
 
@@ -93,6 +94,9 @@ public class SettingsScreen extends Fragment {
         Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
         Button setWageButton = view.findViewById(R.id.setWageBtn);
         wageInput = view.findViewById(R.id.wageInput);
+        Button CalendarIDBtn =view.findViewById(R.id.setCalendarIDBtn);
+        calendarIDInputText =view.findViewById(R.id.calendarIDInput);
+        calendarIDInputText.setText(mainActivity.getCalendarID());
         myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
                 .child(calendarID)
@@ -104,6 +108,21 @@ public class SettingsScreen extends Fragment {
             @Override
             public void onClick(View v) {
                 setWage();
+            }
+        });
+
+        CalendarIDBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myRef.child("calendarID").setValue(calendarIDInputText.getText().toString())
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                mainActivity.setCalendarID(calendarIDInputText.getText().toString());
+                                Toast.makeText(requireContext(), "Calendar ID updated", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(requireContext(), "Unable to set Calendar ID", Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
 
@@ -159,7 +178,7 @@ public class SettingsScreen extends Fragment {
                         mainActivity.setWage(value);
                         Toast.makeText(requireContext(), "Wage updated", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(requireContext(), "Unable Wage updated", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "Unable to set Wage", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

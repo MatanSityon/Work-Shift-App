@@ -84,6 +84,7 @@ public class OrganizerScreen extends Fragment {
 
 
         // Initialize UI elements
+        TextView calendarIDText = view.findViewById(R.id.calanderIDTextView);
         CalendarView calendarView = view.findViewById(R.id.calendarView);
         TextView dateTextView = view.findViewById(R.id.selectedDay);
         GridLayout workersGrid = view.findViewById(R.id.workers_textbox);
@@ -104,7 +105,7 @@ public class OrganizerScreen extends Fragment {
         // Display today's data on launch
         Calendar today = Calendar.getInstance();
         handleDateChange(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH), dateTextView, workersGrid);
-
+        calendarIDText.setText("Calendar ID: "+calendarID);
         // Handle shift assignment
         assignShiftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
