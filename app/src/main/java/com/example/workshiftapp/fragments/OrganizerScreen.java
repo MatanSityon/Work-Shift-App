@@ -314,7 +314,6 @@ public class OrganizerScreen extends Fragment {
             System.out.println("Invalid time format.");
         }
 
-        //addEventToCalendar(year,month,day,start,end); ///////nivs calendar add event
     }
 
     private void removeShift(String date, String name){
@@ -575,82 +574,6 @@ public class OrganizerScreen extends Fragment {
                 e.printStackTrace();
             }
         }).start();
-    }
-
-    public void addEventToCalendar(String year,String month,String day, String startTime,String endTime) {
-        // Check if permission is granted
-
-        String[] timeParts_start = startTime.split(" ");
-        String startPartTime = timeParts_start[0];
-        String startPeriod = timeParts_start[1]; // AM/PM
-        String[] datePartsStart = startPartTime.split(":");
-        int startHour = Integer.parseInt(datePartsStart[0]);
-        int startMin = Integer.parseInt(datePartsStart[1]);
-
-        if (startPeriod.equalsIgnoreCase("PM") && startHour != 12) {
-            startHour += 12;
-        } else if (startPeriod.equalsIgnoreCase("AM") && startHour == 12) {
-            startHour = 0; // Midnight case
-        }
-
-        String[] timeParts_end = endTime.split(" ");
-        String endPartTime = timeParts_end[0];
-        String endPeriod = timeParts_end[1]; // AM/PM
-        String[] datePartsEnd = endPartTime.split(":");
-        int endHour = Integer.parseInt(datePartsEnd[0]);
-        int endMin = Integer.parseInt(datePartsEnd[1]);
-
-        if (endPeriod.equalsIgnoreCase("PM") && endHour != 12) {
-            endHour += 12;
-        } else if (endPeriod.equalsIgnoreCase("AM") && endHour == 12) {
-            endHour = 0; // Midnight case
-        }
-
-        // Get calendar times in milliseconds
-        Calendar beginTimeCalendar = Calendar.getInstance();
-        beginTimeCalendar.set(Integer.parseInt(year), Integer.parseInt(month) - 1, Integer.parseInt(day), startHour, startMin);
-
-        Calendar endTimeCalendar = Calendar.getInstance();
-        endTimeCalendar.set(Integer.parseInt(year), Integer.parseInt(month) - 1, Integer.parseInt(day), endHour, endMin);
-
-        long startMillis = beginTimeCalendar.getTimeInMillis();
-        long endMillis = endTimeCalendar.getTimeInMillis();
-
-        Date startDate = new Date(startMillis);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        String formattedStartTime = sdf.format(startDate);
-        Date endDate = new Date(endMillis);
-        SimpleDateFormat sdf_2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        String formattedEndTime = sdf_2.format(endDate);
-
-
-        // Insert event using Intent
-        Intent intent = new Intent(Intent.ACTION_INSERT);
-        intent.setData(CalendarContract.Events.CONTENT_URI);
-        intent.putExtra(CalendarContract.Events.ALL_DAY, false);
-        intent.putExtra(CalendarContract.Events.TITLE, "Shift");
-        intent.putExtra(CalendarContract.Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
-        intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startMillis);
-        intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endMillis);
-
-        String[] calendarPackages = {
-                "com.google.android.calendar",     // Google's official calendar app
-                "com.google.android.apps.calendar", // Alternate package for some devices
-                "com.android.calendar"             // Default Android calendar package
-        };
-
-        PackageManager packageManager = getActivity().getPackageManager();
-        boolean calendarAppFound = false;
-
-        for (String packageName : calendarPackages) {
-            Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
-            if (launchIntent != null) {
-                calendarAppFound = true;
-                intent.setPackage(packageName); // Set the package name for the calendar app
-                break;
-            }
-        }
-        startActivity(intent);
     }
 
 }
