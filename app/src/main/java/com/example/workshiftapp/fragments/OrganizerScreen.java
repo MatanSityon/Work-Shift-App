@@ -1,9 +1,10 @@
 package com.example.workshiftapp.fragments;
 
 import android.app.TimePickerDialog;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
 import com.example.workshiftapp.models.CalendarShift;
@@ -42,14 +42,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
-import android.content.Intent;
-import android.provider.CalendarContract;
-import java.util.TimeZone;
+
 
 public class OrganizerScreen extends Fragment {
-
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
-
     private String emailUser;
     public static String fullName;
     private boolean isOnShift;
@@ -57,17 +53,15 @@ public class OrganizerScreen extends Fragment {
     private String calendarID;
     private MainActivity mainActivity;
     Button assignShiftBtn;
-
     GoogleSignInClient googleSignInClient;
     GoogleAccountCredential googleAccountCredential;
-
-
-
     public interface OnEventsFetchedCallback {
         void onEventsFetched(ArrayList<CalendarShift> events);
     }
-
-
+    public interface CalendarSyncCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -82,9 +76,6 @@ public class OrganizerScreen extends Fragment {
             fullName = mainActivity.getFullName();
             calendarID = mainActivity.getCalendarID();
         }
-
-
-        // Initialize UI elements
         TextView calendarIDText = view.findViewById(R.id.calanderIDTextView);
         CalendarView calendarView = view.findViewById(R.id.calendarView);
         TextView dateTextView = view.findViewById(R.id.selectedDay);
@@ -92,33 +83,26 @@ public class OrganizerScreen extends Fragment {
         Button startTimePicker = view.findViewById(R.id.time_picker_start);
         Button endTimePicker = view.findViewById(R.id.time_picker_end);
         assignShiftBtn = view.findViewById(R.id.submit_time_btn);
-        //Button googleSignOutButton = view.findViewById(R.id.logOutBtn);
         FloatingActionButton syncBtn = view.findViewById(R.id.SyncGoogleBtn);
-
         // Set up time pickers
         setupTimePicker(startTimePicker, 8, 0);
         setupTimePicker(endTimePicker, 16, 0);
-
         // Handle date selection
         calendarView.setOnDateChangeListener((view1, year, month, dayOfMonth) ->
                 handleDateChange(year, month, dayOfMonth, dateTextView, workersGrid));
-
         // Display today's data on launch
         Calendar today = Calendar.getInstance();
         handleDateChange(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH), dateTextView, workersGrid);
         calendarIDText.setText("Calendar ID: "+calendarID);
         calendarIDText.setBackgroundResource(R.drawable.rounded_box);
-
         // Handle shift assignment
         assignShiftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (assignShiftBtn.getText().equals("Shift Me!")) {
-                    // Existing functionality for assigning a shift
                     String selectedDate = dateTextView.getText().toString();
                     String start = startTimePicker.getText().toString();
                     String end = endTimePicker.getText().toString();
-
                     if (fullName == null) {
                         fullName = mainActivity.getFullName();
                         addShift(selectedDate, start, end, fullName);
@@ -142,39 +126,45 @@ public class OrganizerScreen extends Fragment {
                 }
             }
         });
-
-
-
-
+        //Sync button handle
         syncBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fetchEventsList(new OnEventsFetchedCallback() {
                     @Override
                     public void onEventsFetched(ArrayList<CalendarShift> events) {
-                            addEventToCalendar(events);
+                        addEventToCalendar(events, new CalendarSyncCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Snackbar snackbar = Snackbar.make(requireView(),
+                                        "Shifts added or updated in Google Calendar!",
+                                        Snackbar.LENGTH_LONG);
+                                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
+                                snackbar.setTextColor(Color.BLACK);
+                                snackbar.show();
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+
+                            }
+                        });
                     }
                 });
             }
         });
         return view;
     }
-
     private void handleDateChange(int year, int month, int dayOfMonth, TextView dateTextView, GridLayout workersGrid) {
         // Update the selected date text
         dateTextView.setText(displayDayOfWeek(year, month, dayOfMonth));
         dateTextView.setBackgroundResource(R.drawable.rounded_box);
-
-
         // Clear the GridLayout
         workersGrid.removeAllViews();
-
-        // Fetch and display data from Firebase
         String sYear = String.valueOf(year);
         String sMonth = String.valueOf(month + 1); // Months are zero-based
         String sDay = String.valueOf(dayOfMonth);
-
-
+        // Fetch and display data from Firebase
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
                 .child(calendarID)
@@ -186,8 +176,7 @@ public class OrganizerScreen extends Fragment {
         myRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 DataSnapshot snapshot = task.getResult();
-               isOnShift = false;
-
+                isOnShift = false;
                 if (snapshot.exists()) {
                     for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                         String name = userSnapshot.child("worker").getValue(String.class);
@@ -197,32 +186,25 @@ public class OrganizerScreen extends Fragment {
                         {
                             isOnShift = true;
                         }
-
                         if (name != null && startTime != null && endTime != null) {
                             LinearLayout workerLayout = new LinearLayout(getActivity());
                             workerLayout.setOrientation(LinearLayout.VERTICAL);
                             workerLayout.setPadding(16, 16, 16, 16);
-
                             TextView nameTextView = new TextView(getActivity());
                             nameTextView.setTextColor(Color.BLACK);
                             nameTextView.setText("Worker: " + name);
-
                             TextView startTextView = new TextView(getActivity());
                             startTextView.setTextColor(Color.BLACK);
                             startTextView.setText("Start work at: " + startTime);
-
                             TextView endTextView = new TextView(getActivity());
                             endTextView.setTextColor(Color.BLACK);
                             endTextView.setText("End work at: " + endTime);
-
                             workerLayout.addView(nameTextView);
                             workerLayout.addView(startTextView);
                             workerLayout.addView(endTextView);
-
                             workersGrid.addView(workerLayout);
                         }
                     }
-
                 } else {
                     TextView noDataTextView = new TextView(getActivity());
                     noDataTextView.setText("No one is working today! Schedule your shift!");
@@ -230,10 +212,9 @@ public class OrganizerScreen extends Fragment {
                 }
             } else {
                 Snackbar snackbar = Snackbar.make(requireView(), "Failed to fetch data: " + task.getException(), Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                 snackbar.setTextColor(Color.RED);
                 snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
                 });
                 snackbar.show();
             }
@@ -248,7 +229,6 @@ public class OrganizerScreen extends Fragment {
             }
         });
     }
-
     private void setupTimePicker(Button button, int initialHour, int initialMinute) {
         button.setOnClickListener(v -> {
             TimePickerDialog timePickerDialog = new TimePickerDialog(
@@ -273,14 +253,12 @@ public class OrganizerScreen extends Fragment {
             timePickerDialog.show();
         });
     }
-
     private void addShift(String date, String start, String end, String name) {
         String sanitizedDate = date.substring(date.indexOf("\n") + 1);
         String[] dateParts = sanitizedDate.split("/");
         String day = dateParts[0];
         String month = dateParts[1];
         String year = dateParts[2];
-
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
                 .child(calendarID)
@@ -294,35 +272,29 @@ public class OrganizerScreen extends Fragment {
             // Parse the times into Date objects
             Date startDate = sdf.parse(start);
             Date endDate = sdf.parse(end);
-
             // Compare the times
             if (startDate.before(endDate)) {
                 Shift shift = new Shift(name, start, end);
                 myRef.setValue(shift);
             } else {
                 Snackbar snackbar = Snackbar.make(requireView(), "Start time Should be before end time ", Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                 snackbar.setTextColor(Color.RED);
                 snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
                 });
                 snackbar.show();
             }
-
         } catch (ParseException e) {
             e.printStackTrace();
             System.out.println("Invalid time format.");
         }
-
     }
-
     private void removeShift(String date, String name){
         String sanitizedDate = date.substring(date.indexOf("\n") + 1);
         String[] dateParts = sanitizedDate.split("/");
         String day = dateParts[0];
         String month = dateParts[1];
         String year = dateParts[2];
-
         DatabaseReference myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
                 .child(calendarID)
@@ -335,31 +307,27 @@ public class OrganizerScreen extends Fragment {
         myRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Snackbar snackbar = Snackbar.make(requireView(), "Data deleted successfully ", Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                 snackbar.setTextColor(Color.BLACK);
                 snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
                 });
                 snackbar.show();
             } else {
                 Snackbar snackbar = Snackbar.make(requireView(), "Failed to delete data", Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                 snackbar.setTextColor(Color.RED);
                 snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
                 });
                 snackbar.show();
             }
         });
     }
-
     public String displayDayOfWeek(int year, int month, int dayOfMonth) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, dayOfMonth);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         return getDayOfWeekString(dayOfWeek) + "\n" + dayOfMonth + "/" + (month + 1) + "/" + year;
     }
-
     public String getDayOfWeekString(int dayOfWeek) {
         switch (dayOfWeek) {
             case Calendar.SUNDAY: return "Sunday";
@@ -380,37 +348,29 @@ public class OrganizerScreen extends Fragment {
         int day = Integer.parseInt(dateParts[0]);
         int month = Integer.parseInt(dateParts[1]) - 1; // Months are zero-based
         int year = Integer.parseInt(dateParts[2]);
-
         // Refresh the data for the selected date
         handleDateChange(year, month, day, dateTextView, workersGrid);
     }
-
     private void fetchEventsList(OnEventsFetchedCallback callback) {
         if (googleSignInClient != null)
         {
             ArrayList<CalendarShift> arr = new ArrayList<>();
-
-            // Start from the root reference of the calendar
             DatabaseReference calendarRef = FirebaseDatabase.getInstance()
                     .getReference("Root")
                     .child(calendarID)
                     .child("Calendar");
-
             calendarRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     // Iterate over all years
                     for (DataSnapshot yearSnapshot : snapshot.getChildren()) {
                         String year = yearSnapshot.getKey(); // Year key (e.g., "2025")
-
                         // Iterate over all months in the year
                         for (DataSnapshot monthSnapshot : yearSnapshot.getChildren()) {
                             String month = monthSnapshot.getKey(); // Month key (e.g., "1", "2", ... "12")
-
                             // Iterate over all days in the month
                             for (DataSnapshot daySnapshot : monthSnapshot.getChildren()) {
                                 String day = daySnapshot.getKey(); // Day key (e.g., "1", "2", ... "31")
-
                                 // Check if the user's name exists under this day
                                 DataSnapshot userSnapshot = daySnapshot.child(fullName);
                                 if (userSnapshot.exists()) {
@@ -419,15 +379,12 @@ public class OrganizerScreen extends Fragment {
                                     String endTime = userSnapshot.child("endTime").getValue(String.class);
                                     String date = "";
                                     if (startTime != null && endTime != null) {
-                                        // Format the date (e.g., "DD/MM/YYYY")
-                                        //"2025-01-19T10:00:00";
                                         if(Integer.parseInt(month)<10) {
                                             date = year + "-" + "0" + month + "-" + day + "T";
                                         }
                                         else{
                                             date = year + "-" + month + "-" + day + "T";
                                         }
-
                                         // Create a CalendarShift object and add it to the list
                                         CalendarShift shift = new CalendarShift(date, startTime, endTime);
                                         arr.add(shift);
@@ -436,45 +393,34 @@ public class OrganizerScreen extends Fragment {
                             }
                         }
                     }
-
                     // Notify the callback with the fetched events
                     callback.onEventsFetched(arr);
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
                     Log.e("FirebaseError", "Failed to fetch data: " + error.getMessage());
                     callback.onEventsFetched(new ArrayList<>()); // Return empty list on error
                 }
             });
-
         }
         else
         {
             Snackbar snackbar = Snackbar.make(requireView(), "Syncing is only available after Google Sign-In", Snackbar.LENGTH_LONG);
-            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
             snackbar.setTextColor(Color.RED);
             snackbar.setAction("Dismiss", x -> {
-                // Optional: Handle dismiss action
             });
             snackbar.show();
         }
-
     }
-    // Example: Build the Calendar client
     public com.google.api.services.calendar.Calendar getCalendarService() {
         setupGoogleAccountCredential();
-
         setupGoogleAccountCredential();
-        // Use NetHttpTransport.Builder instead of newTrustedTransport()
         NetHttpTransport httpTransport = new NetHttpTransport.Builder().build();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-
         return new com.google.api.services.calendar.Calendar.Builder(httpTransport, jsonFactory, googleAccountCredential)
                 .setApplicationName("WorkShiftApp")
                 .build();
-
-
     }
     // Once sign-in is successful, set up the Calendar credential
     private void setupGoogleAccountCredential() {
@@ -486,94 +432,75 @@ public class OrganizerScreen extends Fragment {
                     Collections.singleton("https://www.googleapis.com/auth/calendar")
             );
             googleAccountCredential.setSelectedAccount(signInAccount.getAccount());
-
-            // You can now pass googleAccountCredential into the Calendar builder if needed
         }
     }
-
-    public void addEventToCalendar(ArrayList<CalendarShift> arrayList) {
-
+    public void addEventToCalendar(ArrayList<CalendarShift> arrayList, CalendarSyncCallback callback) {
         new Thread(() -> {
             try {
                 com.google.api.services.calendar.Calendar service = getCalendarService();
-
                 // Fetch and delete all existing events with the summary "Shift"
                 String calendarId = "primary";
                 com.google.api.services.calendar.model.Events existingEvents = service.events().list(calendarId)
                         .setQ("Shift") // Search for events with the summary "Shift"
                         .setSingleEvents(true)
                         .execute();
-
                 for (com.google.api.services.calendar.model.Event existingEvent : existingEvents.getItems()) {
                     if ("Shift".equals(existingEvent.getSummary())) {
                         service.events().delete(calendarId, existingEvent.getId()).execute();
                         Log.d("MainActivity", "Deleted existing event: " + existingEvent.getHtmlLink());
                     }
                 }
-
                 // Insert new events from the arrayList
                 for (CalendarShift shift : arrayList) {
-
                     com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event()
                             .setSummary("Shift");
-
                     String[] timeParts_start = shift.getStartTime().split(" ");
                     String startPartTime = timeParts_start[0];
                     String startPeriod = timeParts_start[1]; // AM/PM
                     String[] datePartsStart = startPartTime.split(":");
                     int startHour = Integer.parseInt(datePartsStart[0]);
                     int startMin = Integer.parseInt(datePartsStart[1]);
-
                     if (startPeriod.equalsIgnoreCase("PM") && startHour != 12) {
                         startHour += 12;
                     } else if (startPeriod.equalsIgnoreCase("AM") && startHour == 12) {
                         startHour = 0; // Midnight case
                     }
-
                     String startHourStr = String.format("%02d", startHour); // Format hour with leading zero if needed
                     String startMinStr = String.format("%02d", startMin); // Format minute with leading zero if needed
-
                     String[] timeParts_end = shift.getEndTime().split(" ");
                     String endPartTime = timeParts_end[0];
                     String endPeriod = timeParts_end[1]; // AM/PM
                     String[] datePartsEnd = endPartTime.split(":");
                     int endHour = Integer.parseInt(datePartsEnd[0]);
                     int endMin = Integer.parseInt(datePartsEnd[1]);
-
                     if (endPeriod.equalsIgnoreCase("PM") && endHour != 12) {
                         endHour += 12;
                     } else if (endPeriod.equalsIgnoreCase("AM") && endHour == 12) {
                         endHour = 0; // Midnight case
                     }
-
                     String endHourStr = String.format("%02d", endHour); // Format hour with leading zero if needed
                     String endMinStr = String.format("%02d", endMin); // Format minute with leading zero if needed
-
                     // Correct RFC3339 datetime strings
                     String startDateTimeStr = shift.getDate() + startHourStr + ":" + startMinStr + ":00+02:00";
                     String endDateTimeStr = shift.getDate() +  endHourStr + ":" + endMinStr + ":00+02:00";
-
                     com.google.api.client.util.DateTime startDateTime = new com.google.api.client.util.DateTime(startDateTimeStr);
                     com.google.api.client.util.DateTime endDateTime = new com.google.api.client.util.DateTime(endDateTimeStr);
-
                     event.setStart(new com.google.api.services.calendar.model.EventDateTime().setDateTime(startDateTime));
                     event.setEnd(new com.google.api.services.calendar.model.EventDateTime().setDateTime(endDateTime));
                     event = service.events().insert(calendarId, event).execute();
-
                     Log.d("MainActivity", "Event created: " + event.getHtmlLink());
                 }
-                Snackbar snackbar = Snackbar.make(requireView(), "Shifts added or updated in Google Calendar!", Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
-                snackbar.setTextColor(Color.BLACK);
-                snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    callback.onSuccess();
                 });
-                snackbar.show();
+
             } catch (Exception e) {
                 Log.e("MainActivity", "Error occurred while adding events to calendar.", e);
                 e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    callback.onFailure(e);
+                });
             }
         }).start();
     }
-
 }

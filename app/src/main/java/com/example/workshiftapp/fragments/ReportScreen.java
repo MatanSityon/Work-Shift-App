@@ -43,9 +43,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class ReportScreen extends Fragment {
-
     private static final int REQUEST_WRITE_STORAGE = 112;
-
     private MainActivity mainActivity;
     private String fullName;
     private double wage;
@@ -56,23 +54,19 @@ public class ReportScreen extends Fragment {
     private String selectedYear;
     private Spinner monthSpinner;
     private Spinner yearSpinner;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_report_screen, container, false);
-
         // Initialize main activity and user info
         mainActivity = (MainActivity) getActivity();
         fullName = mainActivity.getFullName();
         wage = mainActivity.getWage();
         calendarID = mainActivity.getCalendarID();
-
         // Spinners for selecting month and year
         monthSpinner = view.findViewById(R.id.MonthSpinnerView);
         yearSpinner = view.findViewById(R.id.YearSpinnerView);
         setupSpinners(monthSpinner, yearSpinner);
-
         // RecyclerView setup
         RecyclerView recyclerView = view.findViewById(R.id.rvcon);
         TextView salaryTextView = view.findViewById(R.id.TotalSalaryTextView);
@@ -80,22 +74,18 @@ public class ReportScreen extends Fragment {
         ArrayList<CardShift> shifts = new ArrayList<>();
         ShiftAdapter shiftAdapter = new ShiftAdapter(shifts);
         recyclerView.setAdapter(shiftAdapter);
-
         // Buttons
         Button reportBtn = view.findViewById(R.id.ReportBtn);
         Button downloadBtn = view.findViewById(R.id.DownloadBtn);
         downloadBtn.setVisibility(View.GONE); // Initially hide the Download button
-
         // Generate Report Button
         reportBtn.setOnClickListener(v -> {
             selectedYear = yearSpinner.getSelectedItem().toString();
             selectedMonth = String.valueOf(monthSpinner.getSelectedItemPosition() + 1);
             shifts.clear();
             shiftAdapter.notifyDataSetChanged();
-
             fetchShifts(selectedYear, selectedMonth, shifts, shiftAdapter, salaryTextView, downloadBtn);
         });
-
         // Download Report Button
         downloadBtn.setOnClickListener(v -> {
             selectedMonth = monthSpinner.getSelectedItem().toString();
@@ -107,10 +97,8 @@ public class ReportScreen extends Fragment {
                 generateAndDownloadPDF(selectedMonth, selectedYear);
             }
         });
-
         return view;
     }
-
     private boolean shouldRequestStoragePermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             // For Android 11 (R) and above
@@ -122,7 +110,6 @@ public class ReportScreen extends Fragment {
         }
         return false;
     }
-
     private void requestStoragePermission() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             // For Android 11 and above
@@ -144,27 +131,22 @@ public class ReportScreen extends Fragment {
             );
         }
     }
-
     private void setupSpinners(Spinner monthSpinner, Spinner yearSpinner) {
         String[] months = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
         String[] years = {"2020", "2021", "2022", "2023", "2024", "2025"};
-
         ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, months);
         monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         monthSpinner.setAdapter(monthAdapter);
-
         ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item, years);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         yearSpinner.setAdapter(yearAdapter);
-
         // Set current month and year as default
         Calendar calendar = Calendar.getInstance();
         monthSpinner.setSelection(calendar.get(Calendar.MONTH));
         yearSpinner.setSelection(yearAdapter.getPosition(String.valueOf(calendar.get(Calendar.YEAR))));
     }
-
     private void fetchShifts(String year, String month, ArrayList<CardShift> shifts, ShiftAdapter shiftAdapter,
                              TextView salaryTextView, Button downloadBtn) {
         DatabaseReference monthRef = FirebaseDatabase.getInstance()
@@ -179,43 +161,35 @@ public class ReportScreen extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 totalMonthHours = 0;
                 totalSalary = 0;
-
                 for (DataSnapshot daySnapshot : snapshot.getChildren()) {
                     DataSnapshot userSnapshot = daySnapshot.child(fullName);
                     if (userSnapshot.exists()) {
                         String startTime = userSnapshot.child("startTime").getValue(String.class);
                         String endTime = userSnapshot.child("endTime").getValue(String.class);
-
                         if (startTime != null && endTime != null) {
                             double totalHours = calculateHoursWorked(startTime, endTime);
                             totalMonthHours += totalHours;
-
                             String dayKey = daySnapshot.getKey();
                             String date = dayKey + "/" + month;
                             String dayOfWeek = getDayOfWeek(year, month, dayKey);
-
                             CardShift shift = new CardShift(startTime, endTime, date, String.valueOf(totalHours), dayOfWeek);
                             shifts.add(shift);
                         }
                     }
                 }
-
                 // Update RecyclerView and total salary
                 shiftAdapter.notifyDataSetChanged();
                 totalSalary = Math.round(totalMonthHours * wage * 100.0) / 100.0;
                 salaryTextView.setText("Total salary: " + totalSalary + "₪");
-
                 // Show the Download button after fetching shifts
                 downloadBtn.setVisibility(View.VISIBLE);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("FirebaseError", "Failed to fetch data: " + error.getMessage());
             }
         });
     }
-
     private void generateAndDownloadPDF(String month, String year) {
         try {
             PayslipGenerator.generatePayslip(
@@ -238,37 +212,31 @@ public class ReportScreen extends Fragment {
                     76.80, // Retirement contributions (401k)
                     totalSalary // Net pay
             );
-
             Snackbar snackbar = Snackbar.make(requireView(), "PDF generated successfully!", Snackbar.LENGTH_LONG);
-            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
             snackbar.setTextColor(Color.BLACK);
             snackbar.setAction("Dismiss", x -> {
-                // Optional: Handle dismiss action
             });
             snackbar.show();
         } catch (Exception e) {
             e.printStackTrace();
             Snackbar snackbar = Snackbar.make(requireView(), "Error generating PDF: " + e.getMessage(), Snackbar.LENGTH_LONG);
-            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
             snackbar.setTextColor(Color.RED);
             snackbar.setAction("Dismiss", x -> {
-                // Optional: Handle dismiss action
             });
             snackbar.show();
         }
     }
-
     private double calculateHoursWorked(String startTime, String endTime) {
         try {
             SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm aa", Locale.getDefault());
             Date start = timeFormat.parse(startTime);
             Date end = timeFormat.parse(endTime);
-
             if (start != null && end != null) {
                 if (end.before(start)) {
                     end = new Date(end.getTime() + 24 * 60 * 60 * 1000); // Add 24 hours for overnight shifts
                 }
-
                 long differenceInMillis = end.getTime() - start.getTime();
                 return Math.round((differenceInMillis / (1000.0 * 60 * 60)) * 100.0) / 100.0;
             }
@@ -277,15 +245,12 @@ public class ReportScreen extends Fragment {
         }
         return 0;
     }
-
     private String getDayOfWeek(String year, String month, String day) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, Integer.parseInt(year));
         calendar.set(Calendar.MONTH, Integer.parseInt(month) - 1); // Month is 0-based
         calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day));
-
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-
         switch (dayOfWeek) {
             case Calendar.SUNDAY:
                 return "Sunday";
@@ -305,30 +270,24 @@ public class ReportScreen extends Fragment {
                 return "Unknown";
         }
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         if (requestCode == REQUEST_WRITE_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Snackbar snackbar = Snackbar.make(requireView(), "Permission granted. Downloading PDF...", Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                 snackbar.setTextColor(Color.BLACK);
                 snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
                 });
                 snackbar.show();
                 // Actually generate and download the PDF after permission is granted
-
                 generateAndDownloadPDF(selectedMonth, selectedYear);
-
             } else {
                 Snackbar snackbar = Snackbar.make(requireView(), "Storage permission is required to download the PDF.", Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                 snackbar.setTextColor(Color.RED);
                 snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
                 });
                 snackbar.show();
             }

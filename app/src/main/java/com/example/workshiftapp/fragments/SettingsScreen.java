@@ -33,13 +33,11 @@ import com.google.firebase.database.ValueEventListener;
  * create an instance of this fragment.
  */
 public class SettingsScreen extends Fragment {
-
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -52,12 +50,9 @@ public class SettingsScreen extends Fragment {
     private EditText wageInput;
     private EditText calendarIDInputText;
     DatabaseReference myRef;
-
-
     public SettingsScreen() {
         // Required empty public constructor
     }
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -75,7 +70,6 @@ public class SettingsScreen extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +78,6 @@ public class SettingsScreen extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -105,19 +98,16 @@ public class SettingsScreen extends Fragment {
                 .child("Users")
                 .child(sanitizedEmail);
         initWageText();
-
         setWageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setWage();
             }
         });
-
         CalendarIDBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String calendarID = calendarIDInputText.getText().toString();
-
                 // Check if the calendar ID is exactly 6 figures
                 if (calendarID.matches("\\d{6}")) {
                     myRef.child("calendarID").setValue(calendarID)
@@ -136,11 +126,6 @@ public class SettingsScreen extends Fragment {
                 }
             }
         });
-
-
-
-
-
         if (mainActivity != null)
         {
             googleAccountCredential = mainActivity.getGoogleAccountCredential();
@@ -157,10 +142,9 @@ public class SettingsScreen extends Fragment {
                 mainActivity.setGoogleAccountCredential(null);
                 mainActivity.setGoogleSignInClient(null);
                 Snackbar snackbar = Snackbar.make(requireView(), "Signed out successfully", Snackbar.LENGTH_LONG);
-                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                 snackbar.setTextColor(Color.BLACK);
                 snackbar.setAction("Dismiss", x -> {
-                    // Optional: Handle dismiss action
                 });
                 snackbar.show();
             }
@@ -175,43 +159,36 @@ public class SettingsScreen extends Fragment {
                     mainActivity.setGoogleAccountCredential(null);
                     mainActivity.setGoogleSignInClient(null);
                     Snackbar snackbar = Snackbar.make(requireView(), "Signed out from Google account", Snackbar.LENGTH_LONG);
-                    snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                    snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                     snackbar.setTextColor(Color.BLACK);
                     snackbar.setAction("Dismiss", x -> {
-                        // Optional: Handle dismiss action
                     });
                     snackbar.show();
                     Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
-
                 });
             }
-
         });
         return view;
     }
-
     private void setWage(){
         double wage =Double.parseDouble(wageInput.getText().toString());
         String key = "wage"; // The key for the variable
         double value = wage; // The value to store
-
         myRef.child(key).setValue(value)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         mainActivity.setWage(value);
                         Snackbar snackbar = Snackbar.make(requireView(), "Wage updated", Snackbar.LENGTH_LONG);
-                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                         snackbar.setTextColor(Color.BLACK);
                         snackbar.setAction("Dismiss", x -> {
-                            // Optional: Handle dismiss action
                         });
                         snackbar.show();
                     } else {
                         Snackbar snackbar = Snackbar.make(requireView(), "Unable to set Wage", Snackbar.LENGTH_LONG);
-                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                         snackbar.setTextColor(Color.RED);
                         snackbar.setAction("Dismiss", x -> {
-                            // Optional: Handle dismiss action
                         });
                         snackbar.show();
                     }
@@ -228,7 +205,6 @@ public class SettingsScreen extends Fragment {
                     if (currWage != null) {
                         wageInput.setText(String.valueOf(currWage));
                         mainActivity.setWage(currWage);
-
                     } else {
                         Log.e("Firebase", "Wage value is null!");
                     }
@@ -242,7 +218,4 @@ public class SettingsScreen extends Fragment {
             }
         });
     }
-
-
-
 }

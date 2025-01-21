@@ -132,7 +132,7 @@
                     android:layout_marginRight="3dp"
                     android:layout_weight="1"
                     android:background="@drawable/roundedstrokeblackinsidewhite"
-                    android:text="00:00 AM" />
+                    android:text="08:00 AM" />
             </LinearLayout>
 
             <LinearLayout
@@ -162,7 +162,7 @@
                     android:layout_marginRight="3dp"
                     android:layout_weight="1"
                     android:background="@drawable/roundedstrokeblackinsidewhite"
-                    android:text="00:00 AM" />
+                    android:text="04:00 PM" />
             </LinearLayout>
 
 
@@ -174,36 +174,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Vertical LinearLayout for the buttons -->
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="bottom"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-            <!-- Floating Action Button for Sync -->
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/SyncGoogleBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_horizontal"
-                android:layout_marginBottom="5dp"
-                android:clickable="true"
-                android:src="@drawable/sync"
-                app:backgroundTint="@color/whiteTextColor" />
-
-            <!-- Submit Button -->
             <Button
                 android:id="@+id/submit_time_btn"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/rounded_box"
                 android:text="shift me!"
-                android:textColor="@color/design_default_color_on_secondary" />
-        </LinearLayout>
+                android:textColor="@color/design_default_color_on_secondary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/SyncGoogleBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:clickable="true"
+                android:src="@drawable/sync"
+                app:backgroundTint="@color/whiteTextColor"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </FrameLayout>
 
 </LinearLayout>

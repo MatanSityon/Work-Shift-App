@@ -31,11 +31,9 @@ public class GeneralAppScreen extends Fragment {
     private String mParam2;
     public static String emailUser;
     private Fragment childFragment;
-
     public GeneralAppScreen() {
         // Required empty public constructor
     }
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -53,9 +51,7 @@ public class GeneralAppScreen extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
     private BottomNavigationView bottomNavigationView;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,28 +59,22 @@ public class GeneralAppScreen extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        // Inflate the layout for this fragment
         if (getChildFragmentManager().findFragmentById(R.id.fragmentContainerView2) == null) {
             childFragment = new OrganizerScreen();
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.fragmentContainerView2, childFragment)
                     .commit();
         }
-
-
+        // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_general_app_screen, container, false);
         bottomNavigationView = view.findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
                 int id = item.getItemId();
                 if (id == R.id.calendarBtn)
                     childFragment = new OrganizerScreen();
@@ -94,16 +84,12 @@ public class GeneralAppScreen extends Fragment {
                     childFragment = new SettingsScreen();
                 else if (id == R.id.chatBtn)
                     childFragment = new ChatScreen();
-
                 getChildFragmentManager().beginTransaction()
                         .replace(R.id.fragmentContainerView2, childFragment)
                         .commit();
-
                 return true;
             }
         });
-
-
         return view;
     }
 }

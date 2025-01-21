@@ -18,7 +18,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class PayslipGenerator {
-
     public static void generatePayslip(Context context, String companyName, String companyAddress,
                                        String employeeName, String position, String payPeriod, String checkNumber,
                                        double regularHours, double overtimeHours, double regularRate, double overtimeRate,
@@ -31,18 +30,14 @@ public class PayslipGenerator {
                 pdfDir.mkdirs(); // Create the directory if it doesn't exist
             }
             File file = new File(pdfDir, employeeName + "_Payslip_" + payPeriod.replace(" ", "_") + ".pdf");
-
             // Initialize PDF Writer
             PdfWriter writer = new PdfWriter(new FileOutputStream(file));
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document document = new Document(pdfDoc);
-
             // Use a monospaced font for consistent formatting
             PdfFont monoFont = PdfFontFactory.createFont("Courier");
-
             // Get the current date
             String currentDate = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault()).format(new Date());
-
             // Add the content using precise spacing
             document.add(new Paragraph("===============================================================")
                     .setFont(monoFont).setFontSize(10));
@@ -106,15 +101,11 @@ public class PayslipGenerator {
                     .setFont(monoFont).setFontSize(10));
             document.add(new Paragraph("===============================================================")
                     .setFont(monoFont).setFontSize(10));
-
             // Close the document
             document.close();
             writer.close();
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -17,10 +17,8 @@ import com.example.workshiftapp.models.Message;
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
-
     private List<Message> messageList;
     private Context context;
-
     public MessageAdapter(List<Message> messageList, Context context) {
         this.messageList = messageList;
         this.context = context;
@@ -32,20 +30,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         View view = LayoutInflater.from(context).inflate(R.layout.message_card, parent, false);
         return new MessageViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message currentMessage = messageList.get(position);
-
-        // Set username
         holder.textViewUsername.setText(currentMessage.getUsername());
-
-        // Set message body
         holder.textViewMessageBody.setText(currentMessage.getMessage());
-
-        // Format timestamp
         holder.textViewTimestamp.setText(currentMessage.getTimestamp());
-
         // Load user photo using Glide
         Glide.with(holder.itemView.getContext())
                 .load(currentMessage.getUserPhoto()) // URL or URI of the user image
@@ -53,22 +43,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 .circleCrop() // Crop image into a circle
                 .into(holder.imageViewUserPicture);
     }
-
     @Override
     public int getItemCount() {
         return messageList.size();
     }
-
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView textViewUsername, textViewMessageBody, textViewTimestamp;
-        ImageView imageViewUserPicture; // Added reference for the ImageView
-
+        ImageView imageViewUserPicture;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             textViewUsername = itemView.findViewById(R.id.textViewUsername);
             textViewMessageBody = itemView.findViewById(R.id.textViewMessageBody);
             textViewTimestamp = itemView.findViewById(R.id.textViewTimestamp);
-            imageViewUserPicture = itemView.findViewById(R.id.imageViewUserPicture); // Bind the ImageView
+            imageViewUserPicture = itemView.findViewById(R.id.imageViewUserPicture);
         }
     }
 }

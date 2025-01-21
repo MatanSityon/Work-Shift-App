@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     private String calendarID;
 
     private String userPhoto;
-    private boolean userExists;
     private double wage;
 
 
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    // ActivityResultLauncher to handle sign-in result
+    // ActivityResultLauncher to handle sign-in result with google
     private final ActivityResultLauncher<Intent> activityResultLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                     new ActivityResultCallback<ActivityResult>() {
@@ -100,8 +99,6 @@ public class MainActivity extends AppCompatActivity {
                                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                                     if (task.isSuccessful()) {
                                                         mAuth = FirebaseAuth.getInstance();
-
-
                                                         // Now that user is signed in, set up the Calendar credential
                                                         setupGoogleAccountCredential();
                                                         initWage(new wageCallback() {
@@ -118,24 +115,20 @@ public class MainActivity extends AppCompatActivity {
                                                                 snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
                                                                 snackbar.setTextColor(Color.BLACK);
                                                                 snackbar.setAction("Dismiss", v -> {
-                                                                    // Optional: Handle dismiss action
                                                                 });
                                                                 snackbar.show();
                                                                 Navigation.findNavController(btn)
                                                                         .navigate(R.id.action_loginScreen_to_generalAppScreen);
                                                             }
                                                         },btn);
-                                                        //showPopupDialog(btn);
 
                                                     } else {
                                                         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed to sign in: " + task.getException(), Snackbar.LENGTH_LONG);
-                                                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                                                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                                                         snackbar.setTextColor(Color.RED);
                                                         snackbar.setAction("Dismiss", v -> {
-                                                            // Optional: Handle dismiss action
                                                         });
                                                         snackbar.show();
-
                                                     }
                                                 }
                                             });
@@ -155,13 +148,11 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
         // Initialize Firebase
         FirebaseApp.initializeApp(this);
         mAuth = FirebaseAuth.getInstance();
     }
-
-    // Method to start Google Sign-In (called from Fragment, presumably)
+    // Method to start Google Sign-In
     public void startGoogleSignIn() {
         // Configure GoogleSignInOptions to request Calendar scope
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -174,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         Intent signInIntent = googleSignInClient.getSignInIntent();
         activityResultLauncher.launch(signInIntent);
     }
-
+    //Login method with email and password
     public void login(View v) {
         String email = ((EditText) findViewById(R.id.login_TextEmail)).getText().toString();
         String password = ((EditText) findViewById(R.id.login_TextPassword)).getText().toString();
@@ -217,15 +208,14 @@ public class MainActivity extends AppCompatActivity {
                             snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
                             snackbar.setTextColor(Color.RED);
                             snackbar.setAction("Dismiss", v -> {
-                                // Optional: Handle dismiss action
                             });
                             snackbar.show();
                         }
                     }
                 });
     }
-
-    public void register() {
+    //Register method
+    public void register(View v) {
         String email = ((EditText) findViewById(R.id.reg_TextEmail)).getText().toString();
         String password = ((EditText) findViewById(R.id.reg_TextPassword)).getText().toString();
         String fullName = ((EditText) findViewById(R.id.reg_FullName)).getText().toString();
@@ -235,29 +225,25 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "register completed", Snackbar.LENGTH_LONG);
-                            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Register completed", Snackbar.LENGTH_LONG);
+                            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                             snackbar.setTextColor(Color.BLACK);
                             snackbar.setAction("Dismiss", v -> {
-                                // Optional: Handle dismiss action
                             });
                             snackbar.show();
                             addData(email, fullName,calendarID);
-                            userExists =false;
+                            Navigation.findNavController(v).navigate(R.id.action_registrationScreen_to_loginScreen);
                         } else {
                             Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Email already exists", Snackbar.LENGTH_LONG);
-                            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                             snackbar.setTextColor(Color.BLACK);
                             snackbar.setAction("Dismiss", v -> {
-                                // Optional: Handle dismiss action
                             });
                             snackbar.show();
-                            userExists=true;
                         }
                     }
                 });
     }
-
     public void addData(String email, String fullName,String calendarID) {
         String sanitizedEmail = email.replace(".", "_");
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -265,17 +251,16 @@ public class MainActivity extends AppCompatActivity {
         Worker worker = new Worker(email, fullName,calendarID);
         myRef.setValue(worker);
     }
-
     public GoogleAccountCredential getGoogleAccountCredential() {
         return googleAccountCredential;
     }
     public GoogleSignInClient getGetGoogleSignInClient() {
         return googleSignInClient;
     }
-
     public void setGetGoogleSignInClient(GoogleSignInClient getGoogleSignInClient) {
         this.googleSignInClient = getGoogleSignInClient;
     }
+    //Reads the current user wage from database
     public void initWage(wageCallback callback) {
         String sanitizedEmail = emailUser.replace(".", "_");
         DatabaseReference myRef = FirebaseDatabase.getInstance()
@@ -308,6 +293,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    //Reads the current user calendar ID from database
     public void initCalendarID(calendarIDCallback callback, View triggerView) {
         String sanitizedEmail = emailUser.replace(".", "_");
         DatabaseReference myRef = FirebaseDatabase.getInstance()
@@ -329,14 +315,12 @@ public class MainActivity extends AppCompatActivity {
                     showPopupDialog(triggerView); // Calendar ID doesn't exist
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("Firebase", "Failed to read calendarID: " + error.getMessage());
             }
         });
     }
-
     public double getWage(){
         return this.wage;
     }
@@ -348,9 +332,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public String getEmailUser() {
         return emailUser;
-    }
-    public boolean getuserExists(){
-        return userExists;
     }
     public String getFullName() {
         return fullName;
@@ -364,28 +345,23 @@ public class MainActivity extends AppCompatActivity {
     public void setUserPhoto(String userPhoto) {
         this.userPhoto = userPhoto;
     }
-
     public void setEmailUser(String emailUser) {
         this.emailUser = emailUser;
     }
-
-
     public void setGoogleSignInClient(GoogleSignInClient googleSignInClient) {
         this.googleSignInClient = googleSignInClient;
     }
-
     public void setmAuth(FirebaseAuth mAuth) {
         this.mAuth = mAuth;
     }
+    //Reads the current user full name from database
     private void getUserName(String email, UserNameCallback callback) {
         String sanitizedEmail = email.replace(".", "_");
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Root");
-
         ref.child("Users").child(sanitizedEmail).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 DataSnapshot snapshot = task.getResult();
                 fullName = snapshot.child("fullName").getValue(String.class);
-                //mainActivity.setFullName(fullName);
                 callback.onUserNameRetrieved(fullName);
             } else {
                 Log.e("Firebase", "Failed to get user name: " + task.getException());
@@ -394,7 +370,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void setupGoogleAccountCredential() {
-
         GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(this);
         if (signInAccount != null) {
             googleAccountCredential = GoogleAccountCredential.usingOAuth2(
@@ -402,59 +377,47 @@ public class MainActivity extends AppCompatActivity {
                     Collections.singleton("https://www.googleapis.com/auth/calendar")
             );
             googleAccountCredential.setSelectedAccount(signInAccount.getAccount());
-
-
         }
     }
     public String getCalendarID() {
         return calendarID;
     }
-
     public void setCalendarID(String calendarID) {
         this.calendarID = calendarID;
     }
-
     private void showPopupDialog(View triggerView) {
         // Inflate the custom layout
             LayoutInflater inflater = LayoutInflater.from(this);
             View popupView = inflater.inflate(R.layout.insert_id_dialog, null);
-
-            // Initialize UI elements in the popup
             EditText inputField = popupView.findViewById(R.id.inputField);
             Button submitButton = popupView.findViewById(R.id.submitButton);
-
             // Build the dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setView(popupView);
-            builder.setCancelable(false); // Prevent dismissal without action
-
+            builder.setCancelable(false);
             AlertDialog dialog = builder.create();
             dialog.show();
-
             // Handle the submit button
             submitButton.setOnClickListener(v -> {
                 String input = inputField.getText().toString().trim();
                 if (input.isEmpty()) {
                     Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Please fill in the required data", Snackbar.LENGTH_LONG);
-                    snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                    snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                     snackbar.setTextColor(Color.RED);
                     snackbar.setAction("Dismiss", x -> {
-                        // Optional: Handle dismiss action
                     });
                     snackbar.show();
                 } else {
                     // Close the dialog only when data is valid
                     setCalendarID(input);
                     dialog.dismiss();
-
                     if (calendarID != null) {
                         Navigation.findNavController(triggerView)
                                 .navigate(R.id.action_loginScreen_to_generalAppScreen);
                         Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Signed in successfully!", Snackbar.LENGTH_LONG);
-                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF"));
                         snackbar.setTextColor(Color.BLACK);
                         snackbar.setAction("Dismiss", x -> {
-                            // Optional: Handle dismiss action
                         });
                         snackbar.show();
                         addData(emailUser, fullName, calendarID);
@@ -462,7 +425,4 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
     }
-
-
-
 }
