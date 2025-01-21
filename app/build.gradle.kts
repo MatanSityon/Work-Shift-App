@@ -69,6 +69,11 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.google.android.gms:play-services-identity:17.0.0")
     implementation("com.google.code.gson:gson:2.8.8")
-    //implementation (libs.recyclerview.v7)
-    //implementation (libs.design)
+    implementation("com.itextpdf:kernel:9.0.0")
+
+    implementation("com.itextpdf:layout:9.0.0")
+
+    implementation ("com.itextpdf:itext7-core:7.2.3")
+    implementation("com.itextpdf:itextpdf:5.5.13.4")
+
 }

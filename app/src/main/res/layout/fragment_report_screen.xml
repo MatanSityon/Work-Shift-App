@@ -76,6 +76,7 @@
         android:gravity="bottom"
         android:orientation="horizontal">
 
+        <!-- Generate Report Button -->
         <Button
             android:id="@+id/ReportBtn"
             android:layout_width="200dp"
@@ -84,6 +85,16 @@
             android:background="@drawable/login_button"
             android:text="Generate Report" />
 
+        <!-- Download Report Button -->
+        <Button
+            android:id="@+id/DownloadBtn"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/login_button"
+            android:text="Download Report"
+            android:visibility="gone" /> <!-- Initially hidden -->
     </LinearLayout>
+
 
 </LinearLayout>
