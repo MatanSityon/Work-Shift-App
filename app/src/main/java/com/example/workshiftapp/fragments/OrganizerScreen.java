@@ -2,6 +2,7 @@ package com.example.workshiftapp.fragments;
 
 import android.app.TimePickerDialog;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -106,6 +107,8 @@ public class OrganizerScreen extends Fragment {
         Calendar today = Calendar.getInstance();
         handleDateChange(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH), dateTextView, workersGrid);
         calendarIDText.setText("Calendar ID: "+calendarID);
+        calendarIDText.setBackgroundResource(R.drawable.rounded_box);
+
         // Handle shift assignment
         assignShiftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,6 +163,8 @@ public class OrganizerScreen extends Fragment {
     private void handleDateChange(int year, int month, int dayOfMonth, TextView dateTextView, GridLayout workersGrid) {
         // Update the selected date text
         dateTextView.setText(displayDayOfWeek(year, month, dayOfMonth));
+        dateTextView.setBackgroundResource(R.drawable.rounded_box);
+
 
         // Clear the GridLayout
         workersGrid.removeAllViews();
@@ -199,12 +204,15 @@ public class OrganizerScreen extends Fragment {
                             workerLayout.setPadding(16, 16, 16, 16);
 
                             TextView nameTextView = new TextView(getActivity());
+                            nameTextView.setTextColor(Color.BLACK);
                             nameTextView.setText("Worker: " + name);
 
                             TextView startTextView = new TextView(getActivity());
+                            startTextView.setTextColor(Color.BLACK);
                             startTextView.setText("Start work at: " + startTime);
 
                             TextView endTextView = new TextView(getActivity());
+                            endTextView.setTextColor(Color.BLACK);
                             endTextView.setText("End work at: " + endTime);
 
                             workerLayout.addView(nameTextView);
@@ -230,7 +238,7 @@ public class OrganizerScreen extends Fragment {
             else
             {
                 assignShiftBtn.setText("Shift Me!");
-                assignShiftBtn.setBackgroundResource(R.drawable.login_button);
+                assignShiftBtn.setBackgroundResource(R.drawable.rounded_box);
             }
         });
     }
