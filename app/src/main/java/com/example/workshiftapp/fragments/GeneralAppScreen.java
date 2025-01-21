@@ -5,13 +5,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import android.renderscript.ScriptGroup;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import com.example.workshiftapp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -91,7 +88,7 @@ public class GeneralAppScreen extends Fragment {
                 int id = item.getItemId();
                 if (id == R.id.calendarBtn)
                     childFragment = new OrganizerScreen();
-                else if (id == R.id.payrollBtn)
+                else if (id == R.id.reportBtn)
                     childFragment = new ReportScreen();
                 else if (id == R.id.settingsBtn)
                     childFragment = new SettingsScreen();

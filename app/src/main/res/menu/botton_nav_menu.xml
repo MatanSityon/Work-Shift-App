@@ -4,9 +4,10 @@
     <item android:title="Calendar"
         android:icon="@drawable/calendar"
         android:id="@+id/calendarBtn"/>
-    <item android:title="Payroll"
+    <item
+        android:id="@+id/reportBtn"
         android:icon="@drawable/money"
-        android:id="@+id/payrollBtn"/>
+        android:title="Report" />
     <item android:title="Chat"
         android:icon="@drawable/chat"
         android:id="@+id/chatBtn"/>

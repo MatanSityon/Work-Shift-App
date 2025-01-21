@@ -1,5 +1,6 @@
 package com.example.workshiftapp.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,12 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
 import com.example.workshiftapp.adapters.MessageAdapter;
 import com.example.workshiftapp.models.Message;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -152,7 +153,13 @@ public class ChatScreen extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(requireContext(), "Failed to load messages.", Toast.LENGTH_SHORT).show();
+                Snackbar snackbar = Snackbar.make(requireView(), "Failed to load messages", Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setTextColor(Color.RED);
+                snackbar.setAction("Dismiss", x -> {
+                    // Optional: Handle dismiss action
+                });
+                snackbar.show();
             }
         });
     }

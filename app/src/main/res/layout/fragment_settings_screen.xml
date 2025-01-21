@@ -4,13 +4,18 @@
     android:id="@+id/SettingsScreen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/img_1"
     android:orientation="vertical"
     tools:context=".fragments.SettingsScreen">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- Header -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/rounded_box"
         android:gravity="center|top"
         android:orientation="horizontal">
 
@@ -20,70 +25,91 @@
             android:gravity="center|top"
             android:text="SETTINGS"
             android:textColor="@color/design_default_color_on_secondary"
-            android:textSize="50dp"
+            android:textSize="40sp"
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- Wage Input -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/roundedstrokeblackinsidewhite"
+        android:orientation="vertical">
 
-        <!-- TextView for "Wage" label -->
-
-        <!-- EditText for entering the wage -->
-        <EditText
-            android:id="@+id/wageInput"
-            android:layout_width="165dp"
-            android:layout_height="40dp"
-            android:layout_marginRight="50dp"
-            android:background="@drawable/rounded_box"
-            android:gravity="center_vertical"
-            android:hint="Enter hourly wage"
-            android:inputType="numberDecimal"
-            android:padding="10dp"
-            android:textColor="@android:color/black"
-            android:textColorHint="@android:color/darker_gray" />
-
-        <Button
-            android:id="@+id/setWageBtn"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="set wage" />
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <EditText
+                android:id="@+id/wageInput"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="35dp"
+                android:background="@drawable/roundedstrokeblackinsidewhite"
+                android:gravity="center_vertical"
+                android:hint="Enter hourly wage"
+                android:inputType="numberDecimal"
+                android:padding="10dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/darker_gray" />
+
+            <Button
+                android:id="@+id/setWageBtn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/roundedstrokeblackinsidewhite"
+                android:text="set wage" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <EditText
+                android:id="@+id/calendarIDInput"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="35dp"
+                android:background="@drawable/roundedstrokeblackinsidewhite"
+                android:gravity="center_vertical"
+                android:hint="Enter calendar ID"
+                android:inputType="numberDecimal"
+                android:padding="10dp"
+                android:textColor="@android:color/black"
+                android:textColorHint="@android:color/darker_gray" />
+
+            <Button
+                android:id="@+id/setCalendarIDBtn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/roundedstrokeblackinsidewhite"
+                android:text="Set Calendar ID" />
+        </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
+    <!-- Calendar ID Input -->
+
+    <!-- Error Label -->
+    <TextView
+        android:id="@+id/errorLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone" />
 
-        <EditText
-            android:id="@+id/calendarIDInput"
-            android:layout_width="165dp"
-            android:layout_height="40dp"
-            android:layout_marginRight="50dp"
-            android:background="@drawable/rounded_box"
-            android:gravity="center_vertical"
-            android:hint="Enter calendar ID"
-            android:inputType="numberDecimal"
-            android:padding="10dp"
-            android:textColor="@android:color/black"
-            android:textColorHint="@android:color/darker_gray" />
-
-        <Button
-            android:id="@+id/setCalendarIDBtn"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Set Calendar ID" />
-
-    </LinearLayout>
-
+    <!-- Logout Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -95,11 +121,9 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="25dp"
-            android:background="@drawable/login_button"
+            android:background="@drawable/rounded_box"
             android:gravity="center"
             android:text="Sign Out"
-            android:textColor="@color/whiteTextColor" />
+            android:textColor="@color/design_default_color_on_secondary" />
     </LinearLayout>
-
-
 </LinearLayout>

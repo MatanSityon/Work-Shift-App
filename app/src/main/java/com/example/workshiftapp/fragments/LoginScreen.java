@@ -1,5 +1,6 @@
 package com.example.workshiftapp.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,7 +87,13 @@ public class LoginScreen extends Fragment {
 
                 } else {
                     // Show a message if the email field is empty
-                    Toast.makeText(requireContext(), "Please enter your email and password", Toast.LENGTH_SHORT).show();
+                    Snackbar snackbar = Snackbar.make(requireView(), "Please enter your email and password", Snackbar.LENGTH_LONG);
+                    snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                    snackbar.setTextColor(Color.RED);
+                    snackbar.setAction("Dismiss", x -> {
+                        // Optional: Handle dismiss action
+                    });
+                    snackbar.show();
                 }
             }
         });
@@ -107,7 +115,7 @@ public class LoginScreen extends Fragment {
                 if (mainActivity != null) {
                     mainActivity.startGoogleSignIn();  // Call the Google Sign-In method
                 } else {
-                    Toast.makeText(requireContext(), "Unable to access main activity", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Unable to sign in", Toast.LENGTH_SHORT).show();
                 }
             }
         });

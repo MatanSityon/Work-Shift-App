@@ -80,8 +80,8 @@ public class RegistrationScreen extends Fragment {
                 isValid = false;
             }
 
-            if (regCalendarID.isEmpty()) {
-                errorCalendarID.setText("Calendar ID is required");
+            if (regCalendarID.isEmpty() || !(regCalendarID.matches("\\d{6}"))) {
+                errorCalendarID.setText(regCalendarID.isEmpty() ? "Calendar ID is required" : "Calendar ID must be exactly 6 digits" );
                 errorCalendarID.setVisibility(View.VISIBLE);
                 isValid = false;
             }

@@ -1,5 +1,6 @@
 package com.example.workshiftapp.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,11 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.workshiftapp.R;
 import com.example.workshiftapp.activities.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -95,11 +97,11 @@ public class SettingsScreen extends Fragment {
         Button setWageButton = view.findViewById(R.id.setWageBtn);
         wageInput = view.findViewById(R.id.wageInput);
         Button CalendarIDBtn =view.findViewById(R.id.setCalendarIDBtn);
+        TextView errorLabel = view.findViewById(R.id.errorLabel);
         calendarIDInputText =view.findViewById(R.id.calendarIDInput);
         calendarIDInputText.setText(mainActivity.getCalendarID());
         myRef = FirebaseDatabase.getInstance()
                 .getReference("Root")
-                .child(calendarID)
                 .child("Users")
                 .child(sanitizedEmail);
         initWageText();
@@ -114,17 +116,27 @@ public class SettingsScreen extends Fragment {
         CalendarIDBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myRef.child("calendarID").setValue(calendarIDInputText.getText().toString())
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                mainActivity.setCalendarID(calendarIDInputText.getText().toString());
-                                Toast.makeText(requireContext(), "Calendar ID updated", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(requireContext(), "Unable to set Calendar ID", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                String calendarID = calendarIDInputText.getText().toString();
+
+                // Check if the calendar ID is exactly 6 figures
+                if (calendarID.matches("\\d{6}")) {
+                    myRef.child("calendarID").setValue(calendarID)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    mainActivity.setCalendarID(calendarID);
+                                    errorLabel.setVisibility(View.GONE);
+                                } else {
+                                    errorLabel.setText("Unable to set Calendar ID");
+                                    errorLabel.setVisibility(View.VISIBLE);
+                                }
+                            });
+                } else {
+                    errorLabel.setText("Calendar ID must be exactly 6 digits");
+                    errorLabel.setVisibility(View.VISIBLE);
+                }
             }
         });
+
 
 
 
@@ -144,7 +156,13 @@ public class SettingsScreen extends Fragment {
                 mainActivity.setFullName(null);
                 mainActivity.setGoogleAccountCredential(null);
                 mainActivity.setGoogleSignInClient(null);
-                Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+                Snackbar snackbar = Snackbar.make(requireView(), "Signed out successfully", Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setTextColor(Color.BLACK);
+                snackbar.setAction("Dismiss", x -> {
+                    // Optional: Handle dismiss action
+                });
+                snackbar.show();
             }
             else
             {
@@ -156,8 +174,13 @@ public class SettingsScreen extends Fragment {
                     mainActivity.setFullName(null);
                     mainActivity.setGoogleAccountCredential(null);
                     mainActivity.setGoogleSignInClient(null);
-
-                    Toast.makeText(requireContext(), "Signed out from Google account", Toast.LENGTH_SHORT).show();
+                    Snackbar snackbar = Snackbar.make(requireView(), "Signed out from Google account", Snackbar.LENGTH_LONG);
+                    snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                    snackbar.setTextColor(Color.BLACK);
+                    snackbar.setAction("Dismiss", x -> {
+                        // Optional: Handle dismiss action
+                    });
+                    snackbar.show();
                     Navigation.findNavController(view).navigate(R.id.action_generalAppScreen_to_loginScreen);
 
                 });
@@ -176,9 +199,21 @@ public class SettingsScreen extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         mainActivity.setWage(value);
-                        Toast.makeText(requireContext(), "Wage updated", Toast.LENGTH_SHORT).show();
+                        Snackbar snackbar = Snackbar.make(requireView(), "Wage updated", Snackbar.LENGTH_LONG);
+                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                        snackbar.setTextColor(Color.BLACK);
+                        snackbar.setAction("Dismiss", x -> {
+                            // Optional: Handle dismiss action
+                        });
+                        snackbar.show();
                     } else {
-                        Toast.makeText(requireContext(), "Unable to set Wage", Toast.LENGTH_SHORT).show();
+                        Snackbar snackbar = Snackbar.make(requireView(), "Unable to set Wage", Snackbar.LENGTH_LONG);
+                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                        snackbar.setTextColor(Color.RED);
+                        snackbar.setAction("Dismiss", x -> {
+                            // Optional: Handle dismiss action
+                        });
+                        snackbar.show();
                     }
                 });
     }

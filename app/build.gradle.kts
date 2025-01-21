@@ -73,7 +73,8 @@ dependencies {
 
     implementation("com.itextpdf:layout:9.0.0")
 
-    implementation ("com.itextpdf:itext7-core:7.2.3")
+    implementation ("com.itextpdf:itext7-core:7.2.2")
     implementation("com.itextpdf:itextpdf:5.5.13.4")
+
 
 }

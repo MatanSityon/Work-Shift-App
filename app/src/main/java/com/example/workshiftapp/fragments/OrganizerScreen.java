@@ -13,7 +13,6 @@ import android.widget.CalendarView;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -25,6 +24,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -229,7 +229,13 @@ public class OrganizerScreen extends Fragment {
                     workersGrid.addView(noDataTextView);
                 }
             } else {
-                Toast.makeText(getActivity(), "Failed to fetch data: " + task.getException(), Toast.LENGTH_SHORT).show();
+                Snackbar snackbar = Snackbar.make(requireView(), "Failed to fetch data: " + task.getException(), Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setTextColor(Color.RED);
+                snackbar.setAction("Dismiss", x -> {
+                    // Optional: Handle dismiss action
+                });
+                snackbar.show();
             }
             if (isOnShift) {
                 assignShiftBtn.setText("Unshift Me!");
@@ -294,8 +300,13 @@ public class OrganizerScreen extends Fragment {
                 Shift shift = new Shift(name, start, end);
                 myRef.setValue(shift);
             } else {
-                Toast.makeText(requireContext(), "Start time Should be before end time", Toast.LENGTH_SHORT).show();
-
+                Snackbar snackbar = Snackbar.make(requireView(), "Start time Should be before end time ", Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setTextColor(Color.RED);
+                snackbar.setAction("Dismiss", x -> {
+                    // Optional: Handle dismiss action
+                });
+                snackbar.show();
             }
 
         } catch (ParseException e) {
@@ -324,9 +335,21 @@ public class OrganizerScreen extends Fragment {
         // To delete the data at this reference
         myRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Toast.makeText(requireContext(), "Data deleted successfully", Toast.LENGTH_SHORT).show();
+                Snackbar snackbar = Snackbar.make(requireView(), "Data deleted successfully ", Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setTextColor(Color.BLACK);
+                snackbar.setAction("Dismiss", x -> {
+                    // Optional: Handle dismiss action
+                });
+                snackbar.show();
             } else {
-                Toast.makeText(requireContext(), "Failed to delete data", Toast.LENGTH_SHORT).show();
+                Snackbar snackbar = Snackbar.make(requireView(), "Failed to delete data", Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setTextColor(Color.RED);
+                snackbar.setAction("Dismiss", x -> {
+                    // Optional: Handle dismiss action
+                });
+                snackbar.show();
             }
         });
     }
@@ -429,7 +452,13 @@ public class OrganizerScreen extends Fragment {
         }
         else
         {
-            Toast.makeText(requireContext(), "Syncing is only available after Google Sign-In", Toast.LENGTH_SHORT).show();
+            Snackbar snackbar = Snackbar.make(requireView(), "Syncing is only available after Google Sign-In", Snackbar.LENGTH_LONG);
+            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+            snackbar.setTextColor(Color.RED);
+            snackbar.setAction("Dismiss", x -> {
+                // Optional: Handle dismiss action
+            });
+            snackbar.show();
         }
 
     }
@@ -469,11 +498,25 @@ public class OrganizerScreen extends Fragment {
             try {
                 com.google.api.services.calendar.Calendar service = getCalendarService();
 
+                // Fetch and delete all existing events with the summary "Shift"
+                String calendarId = "primary";
+                com.google.api.services.calendar.model.Events existingEvents = service.events().list(calendarId)
+                        .setQ("Shift") // Search for events with the summary "Shift"
+                        .setSingleEvents(true)
+                        .execute();
+
+                for (com.google.api.services.calendar.model.Event existingEvent : existingEvents.getItems()) {
+                    if ("Shift".equals(existingEvent.getSummary())) {
+                        service.events().delete(calendarId, existingEvent.getId()).execute();
+                        Log.d("MainActivity", "Deleted existing event: " + existingEvent.getHtmlLink());
+                    }
+                }
+
+                // Insert new events from the arrayList
                 for (CalendarShift shift : arrayList) {
 
                     com.google.api.services.calendar.model.Event event = new com.google.api.services.calendar.model.Event()
                             .setSummary("Shift");
-
 
                     String[] timeParts_start = shift.getStartTime().split(" ");
                     String startPartTime = timeParts_start[0];
@@ -488,7 +531,6 @@ public class OrganizerScreen extends Fragment {
                         startHour = 0; // Midnight case
                     }
 
-                    // Ensure startHour and startMin are formatted as two digits
                     String startHourStr = String.format("%02d", startHour); // Format hour with leading zero if needed
                     String startMinStr = String.format("%02d", startMin); // Format minute with leading zero if needed
 
@@ -505,37 +547,31 @@ public class OrganizerScreen extends Fragment {
                         endHour = 0; // Midnight case
                     }
 
-                    // Ensure endHour and endMin are formatted as two digits
                     String endHourStr = String.format("%02d", endHour); // Format hour with leading zero if needed
                     String endMinStr = String.format("%02d", endMin); // Format minute with leading zero if needed
 
-                    // You can now use startHourStr, startMinStr, endHourStr, and endMinStr as formatted values
-
-
-                    // Example start/end times (RFC3339)
-                    String startDateTimeStr = shift.getDate() + startHourStr +":"+ startMinStr + ":00+02:00";
-                    String endDateTimeStr = shift.getDate()+ endHourStr +":"+ endMinStr + ":00+02:00";
-
+                    // Correct RFC3339 datetime strings
+                    String startDateTimeStr = shift.getDate() + startHourStr + ":" + startMinStr + ":00+02:00";
+                    String endDateTimeStr = shift.getDate() +  endHourStr + ":" + endMinStr + ":00+02:00";
 
                     com.google.api.client.util.DateTime startDateTime = new com.google.api.client.util.DateTime(startDateTimeStr);
-                    com.google.api.services.calendar.model.EventDateTime start =
-                            new com.google.api.services.calendar.model.EventDateTime().setDateTime(startDateTime);
-                    event.setStart(start);
-
                     com.google.api.client.util.DateTime endDateTime = new com.google.api.client.util.DateTime(endDateTimeStr);
-                    com.google.api.services.calendar.model.EventDateTime end =
-                            new com.google.api.services.calendar.model.EventDateTime().setDateTime(endDateTime);
-                    event.setEnd(end);
 
-                    // Insert event
-                    String calendarId = "primary";
+                    event.setStart(new com.google.api.services.calendar.model.EventDateTime().setDateTime(startDateTime));
+                    event.setEnd(new com.google.api.services.calendar.model.EventDateTime().setDateTime(endDateTime));
                     event = service.events().insert(calendarId, event).execute();
 
                     Log.d("MainActivity", "Event created: " + event.getHtmlLink());
                 }
-                Toast.makeText(requireContext(), "Shifts added to Google Calendar!", Toast.LENGTH_SHORT).show();
-
+                Snackbar snackbar = Snackbar.make(requireView(), "Shifts added or updated in Google Calendar!", Snackbar.LENGTH_LONG);
+                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                snackbar.setTextColor(Color.BLACK);
+                snackbar.setAction("Dismiss", x -> {
+                    // Optional: Handle dismiss action
+                });
+                snackbar.show();
             } catch (Exception e) {
+                Log.e("MainActivity", "Error occurred while adding events to calendar.", e);
                 e.printStackTrace();
             }
         }).start();

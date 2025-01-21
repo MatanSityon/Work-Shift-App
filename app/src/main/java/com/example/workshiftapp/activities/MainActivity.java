@@ -2,13 +2,13 @@ package com.example.workshiftapp.activities;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -30,6 +30,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
@@ -113,19 +114,28 @@ public class MainActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onCalendarIDRetrieved(String calendarIDUser) {
                                                                 calendarID = calendarIDUser;
-                                                                Toast.makeText(MainActivity.this,
-                                                                        "Signed in successfully!",
-                                                                        Toast.LENGTH_SHORT).show();
+                                                                Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Connected with Google", Snackbar.LENGTH_LONG);
+                                                                snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                                                                snackbar.setTextColor(Color.BLACK);
+                                                                snackbar.setAction("Dismiss", v -> {
+                                                                    // Optional: Handle dismiss action
+                                                                });
+                                                                snackbar.show();
                                                                 Navigation.findNavController(btn)
                                                                         .navigate(R.id.action_loginScreen_to_generalAppScreen);
                                                             }
                                                         },btn);
-                                                            //showPopupDialog(btn);
+                                                        //showPopupDialog(btn);
 
                                                     } else {
-                                                        Toast.makeText(MainActivity.this,
-                                                                "Failed to sign in: " + task.getException(),
-                                                                Toast.LENGTH_SHORT).show();
+                                                        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Failed to sign in: " + task.getException(), Snackbar.LENGTH_LONG);
+                                                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                                                        snackbar.setTextColor(Color.RED);
+                                                        snackbar.setAction("Dismiss", v -> {
+                                                            // Optional: Handle dismiss action
+                                                        });
+                                                        snackbar.show();
+
                                                     }
                                                 }
                                             });
@@ -203,7 +213,13 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             },v);
                         } else {
-                            Toast.makeText(MainActivity.this, "login fail", Toast.LENGTH_LONG).show();
+                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "login fail", Snackbar.LENGTH_LONG);
+                            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                            snackbar.setTextColor(Color.RED);
+                            snackbar.setAction("Dismiss", v -> {
+                                // Optional: Handle dismiss action
+                            });
+                            snackbar.show();
                         }
                     }
                 });
@@ -219,11 +235,23 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "register completed", Toast.LENGTH_LONG).show();
+                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "register completed", Snackbar.LENGTH_LONG);
+                            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                            snackbar.setTextColor(Color.BLACK);
+                            snackbar.setAction("Dismiss", v -> {
+                                // Optional: Handle dismiss action
+                            });
+                            snackbar.show();
                             addData(email, fullName,calendarID);
                             userExists =false;
                         } else {
-                            Toast.makeText(MainActivity.this, "Email already exists", Toast.LENGTH_LONG).show();
+                            Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Email already exists", Snackbar.LENGTH_LONG);
+                            snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                            snackbar.setTextColor(Color.BLACK);
+                            snackbar.setAction("Dismiss", v -> {
+                                // Optional: Handle dismiss action
+                            });
+                            snackbar.show();
                             userExists=true;
                         }
                     }
@@ -407,20 +435,28 @@ public class MainActivity extends AppCompatActivity {
             submitButton.setOnClickListener(v -> {
                 String input = inputField.getText().toString().trim();
                 if (input.isEmpty()) {
-
-                    Toast.makeText(this, "Please fill in the required data", Toast.LENGTH_SHORT).show();
+                    Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Please fill in the required data", Snackbar.LENGTH_LONG);
+                    snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                    snackbar.setTextColor(Color.RED);
+                    snackbar.setAction("Dismiss", x -> {
+                        // Optional: Handle dismiss action
+                    });
+                    snackbar.show();
                 } else {
                     // Close the dialog only when data is valid
                     setCalendarID(input);
-                    //Toast.makeText(this, "Data submitted: " + input, Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
 
                     if (calendarID != null) {
                         Navigation.findNavController(triggerView)
                                 .navigate(R.id.action_loginScreen_to_generalAppScreen);
-                        Toast.makeText(MainActivity.this,
-                                "Signed in successfully!",
-                                Toast.LENGTH_SHORT).show();
+                        Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), "Signed in successfully!", Snackbar.LENGTH_LONG);
+                        snackbar.setBackgroundTint(Color.parseColor("#FFFFFF")); // Example: Red background
+                        snackbar.setTextColor(Color.BLACK);
+                        snackbar.setAction("Dismiss", x -> {
+                            // Optional: Handle dismiss action
+                        });
+                        snackbar.show();
                         addData(emailUser, fullName, calendarID);
                     }
                 }

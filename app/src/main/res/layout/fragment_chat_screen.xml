@@ -1,8 +1,8 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/groupChatLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/img_1"
     android:orientation="vertical">
 
     <!-- RecyclerView to show messages -->
@@ -17,22 +17,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_box"
         android:orientation="horizontal"
         android:padding="8dp">
 
         <EditText
             android:id="@+id/editTextMessage"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="46dp"
             android:layout_weight="1"
             android:hint="Type a message"
-            android:inputType="text" />
+            android:inputType="text"
+            android:textSize="16dp" />
 
         <Button
             android:id="@+id/buttonSend"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send" />
+            android:layout_height="46dp"
+            android:layout_weight="0.004"
+            android:background="@drawable/roundedstrokeblackinsidewhite"
+            android:text="Send"
+            android:textSize="16dp" />
     </LinearLayout>
 
 </LinearLayout>
