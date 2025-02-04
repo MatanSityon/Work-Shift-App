@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         String sanitizedEmail = email.replace(".", "_");
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("Root").child("Users").child(sanitizedEmail);
-        Worker worker = new Worker(email, fullName,calendarID);
+        Worker worker = new Worker(email, fullName,calendarID,34.33);
         myRef.setValue(worker);
     }
     public GoogleAccountCredential getGoogleAccountCredential() {
@@ -281,9 +281,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e("Firebase", "Wage value is null!");
                     }
                 } else {
-                    callback.onWageRetrieved(0.0); // Pass retrieved wage to callback
-
-                    Log.e("Firebase", "Snapshot does not exist or is empty!");
+                    callback.onWageRetrieved(34.33); // Pass retrieved wage to callback
                 }
             }
 

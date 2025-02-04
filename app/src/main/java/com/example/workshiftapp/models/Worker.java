@@ -5,10 +5,11 @@ public class Worker {
     private String fullName;
     private double wage;
     private String calendarID;
-    public Worker(String email, String fullName, String calendarID) {
+    public Worker(String email, String fullName, String calendarID,double wage) {
         this.email = email;
         this.fullName = fullName;
         this.calendarID = calendarID;
+        this.wage = wage;
     }
     public double getWage() {
         return wage;
