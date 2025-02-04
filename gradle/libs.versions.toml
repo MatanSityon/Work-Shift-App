@@ -1,16 +1,23 @@
 [versions]
 agp = "8.7.2"
 credentials = "<latest version>"
+credentialsVersion = "1.2.2"
 design = "28.0.0"
 firebaseBom = "33.7.0"
+glide = "4.16.0"
 googleid = "<latest version>"
+gson = "2.10.1"
 itext7Core = "7.2.5"
+itext7CoreVersion = "7.2.2"
+itextpdf = "5.5.13.4"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
 kernel = "7.2.5"
+kernelVersion = "9.0.0"
 layout = "7.2.5"
+layoutVersion = "9.0.0"
 material = "1.12.0"
 activity = "1.9.3"
 constraintlayout = "2.2.0"
@@ -24,22 +31,31 @@ firebaseDatabaseVersion = "21.0.0"
 annotation = "1.9.1"
 lifecycleLivedataKtx = "2.8.7"
 lifecycleViewmodelKtx = "2.8.7"
+playServicesAuth = "21.3.0"
+playServicesIdentity = "18.1.0"
 recyclerviewV7 = "28.0.0"
 
 [libraries]
 credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+credentials-v122 = { module = "androidx.credentials:credentials", version.ref = "credentialsVersion" }
 design = { module = "com.android.support:design", version.ref = "design" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 itext7-core = { module = "com.itextpdf:itext7-core", version.ref = "itext7Core" }
+itext7-core-v722 = { module = "com.itextpdf:itext7-core", version.ref = "itext7CoreVersion" }
+itextpdf = { module = "com.itextpdf:itextpdf", version.ref = "itextpdf" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kernel = { module = "com.itextpdf:kernel", version.ref = "kernel" }
+kernel-v900 = { module = "com.itextpdf:kernel", version.ref = "kernelVersion" }
 layout = { module = "com.itextpdf:layout", version.ref = "layout" }
+layout-v900 = { module = "com.itextpdf:layout", version.ref = "layoutVersion" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -50,6 +66,8 @@ firebase-database = { group = "com.google.firebase", name = "firebase-database",
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+play-services-identity = { module = "com.google.android.gms:play-services-identity", version.ref = "playServicesIdentity" }
 recyclerview-v7 = { module = "com.android.support:recyclerview-v7", version.ref = "recyclerviewV7" }
 
 [plugins]

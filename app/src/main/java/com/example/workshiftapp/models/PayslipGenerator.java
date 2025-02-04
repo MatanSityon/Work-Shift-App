@@ -24,12 +24,18 @@ public class PayslipGenerator {
                                        double grossPay, double federalTax, double stateTax, double socialSecurity,
                                        double medicare, double retirement, double netPay) {
         try {
-            // Create directory and file path in the "Downloads" folder
+            SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yy_HH-mm");
+
+            // Get the current date and time
+            Date requestedTime = new Date();
+
+            // Format and print it
+            String formattedDateTime = formatter.format(requestedTime);
             File pdfDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             if (!pdfDir.exists()) {
                 pdfDir.mkdirs(); // Create the directory if it doesn't exist
             }
-            File file = new File(pdfDir, employeeName + "_Payslip_" + payPeriod.replace(" ", "_") + ".pdf");
+            File file = new File(pdfDir, employeeName + "_Payslip_" + payPeriod.replace(" ", "_")+formattedDateTime + ".pdf");
             // Initialize PDF Writer
             PdfWriter writer = new PdfWriter(new FileOutputStream(file));
             PdfDocument pdfDoc = new PdfDocument(writer);
